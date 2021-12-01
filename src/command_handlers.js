@@ -25,7 +25,7 @@ async function commandHandler(bot, cmd) {
 
         case "start":
             // retorna uma menssagem de apresentação
-            return await bot.replyText("Hey! Sou um simples bot, porém ainda estou em desevolvimento!\nPara acompanhar meu progresso, acesse: https://github.com/kamuridesu/WhatsappBot");
+            return await bot.replyText("Hey! Sou um simples bot, porém ainda estou em desevolvimento!\nPara acompanhar meu progresso, acesse: https://github.com/kamuridesu/Jashin-bot");
 
         case "ajuda":
         case "menu":
