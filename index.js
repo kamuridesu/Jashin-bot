@@ -64,6 +64,8 @@ class Bot {
         await this.conn.updatePresence(this.from, Presence.available); // atualiza o status do remetente para online.
         await this.conn.chatRead(this.from); // marca a mensagem como lida.
         this.sender = this.from; // pega o remetente da mensagem
+        this.sender_name = this.conn.contacts[this.sender] ? this.conn.contacts[this.sender].name : this.sender; // pega o nome do remetente
+        console.log(this.sender_name)
         this.is_group = this.sender.endsWith("@g.us"); // verifica se é um grupo
 
         if (this.is_group) { // se for um grupo
