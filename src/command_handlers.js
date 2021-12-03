@@ -48,7 +48,7 @@ async function commandHandler(bot, cmd) {
             // retorna uma musica
             return await bot.replyMedia("./config.test/music.mp3", MessageType.audio, Mimetype.mp4Audio);
             
-        case "image_from_url":
+        case "image_from_url":{
             // retorna uma imagem de uma url
             // baixa uma imagem a partir de uma url e baixa a imagem
             if (args.length < 1) {
@@ -59,10 +59,10 @@ async function commandHandler(bot, cmd) {
                 return await bot.replyMedia(args[0], MessageType.image, Mimetype.png);
             }
             return await bot.replyText(error);
-
+        }
         /* %$ENDMIDIA$% */
 
-        /* %$VARIADOS$% */
+        /* %$DIVERSAO$% */
 
         case "repeat":
             // repete uma menssagem
@@ -115,7 +115,29 @@ async function commandHandler(bot, cmd) {
             return await bot.replyText(error);
         }
 
-        /* %$ENDVARIADOS$% */
+        case "gado": {
+            // diz a porcentagem de gadisse para alguem mencionado ou para quem usou o comando
+            let user = undefined;
+            if(bot.message_data.quoted) {
+                user = (JSON.parse(JSON.stringify(bot.message_data.context).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo.participant);
+                user = {
+                    user: user,
+                    name: "@" + bot.sender.split("@")[0]
+                };
+            }
+            if(user === undefined) {
+                user = {
+                    user: user,
+                    name: "@" + bot.sender.split("@")[0]
+                };
+                console.log(user)
+            }
+            let gado = Math.floor(Math.random() * 100);
+            return await bot.replyText(`${user.name} tem ${gado}% de gado!`, user.user);
+        }
+            
+
+        /* %$ENDDIVERSAO$% */
 
         /* %$ADMIN$% */
 
@@ -269,6 +291,7 @@ async function commandHandler(bot, cmd) {
             }
             return await bot.replyText(error);
         }
+
         
         /* %$ENDBOTOWNER$% */
     }

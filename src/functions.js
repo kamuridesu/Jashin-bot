@@ -105,6 +105,7 @@ async function checkMessageData(message) {
         type: undefined,
         body: undefined,
         is_media: false,
+        quoted: false,
         is_quoted_text: false,
         is_quoted_video: false,
         is_quoted_image: false,
@@ -134,6 +135,7 @@ async function checkMessageData(message) {
     // check if message is a quoted message
     if (type === "extendedTextMessage") {
         const message_string = JSON.stringify(message.message);
+        message_data.quoted = true;
         message_data.is_quoted_text = message_string.includes("conversation");
         message_data.is_quoted_audio = message_string.includes("audioMessage");
         message_data.is_quoted_image = message_string.includes("imageMessage");

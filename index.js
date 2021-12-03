@@ -20,32 +20,6 @@ class Bot {
         this.sender_is_owner = undefined;
         this.is_group = undefined;
         this.all_chats = undefined;
-        this.group_data = {
-            name: undefined,
-            id: undefined,
-            members: undefined,
-            owner: undefined,
-            sender_is_group_owner: undefined,
-            admins_info: undefined,
-            admins_jid: undefined,
-            bot_is_admin: undefined,
-            sender_is_admin: undefined,
-            description: undefined,
-            locked: false,
-            open: true,
-            welcome_on: undefined,
-        }
-        this.message_data = {
-            context: undefined,
-            type: undefined,
-            body: undefined,
-            is_media: false,
-            is_quoted_text: false,
-            is_quoted_video: false,
-            is_quoted_image: false,
-            is_quoted_audio: false,
-            is_quoted_sticker: false,
-        }
     }
 
     async connectToWa() {
@@ -118,11 +92,14 @@ class Bot {
      * responde via mensagem de texto para o usuario.
      * @param {string} text texto a ser enviado.
      */
-    async replyText(text) {
+    async replyText(text, mention) {
         // envia uma mensagem de texto para o usuario como resposta.
         await this.conn.updatePresence(this.from, Presence.composing); // atualiza o status do remetente para "escrevendo"
         await this.conn.sendMessage(this.from, text, MessageType.text, { // envia a mensagem
-            quoted: this.message_data.context // se for uma mensagem de contexto, envia como contexto.
+            quoted: this.message_data.context,
+            contextInfo: {
+                "mentionedJid": mention ? mention : ""
+            }// se for uma mensagem de contexto, envia como contexto.
         });
         await this.conn.updatePresence(this.from, Presence.available); // atualiza o status do remetente para online.
     }
