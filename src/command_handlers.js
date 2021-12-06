@@ -215,7 +215,6 @@ ${message}`
             }
             return bot.replyText(error);
         }
-          
 
         /* %$ENDDIVERSAO$% */
 
@@ -377,7 +376,7 @@ ${message}`
             } else if(!bot.sender_is_owner) {
                 error = "Erro! Só pode ser enviado pelo dono do bot!";
             } else {
-                const message = args.join(" ");
+                const message = "[TRANSMISSÃO]\n\n" + args.join(" ");
                 console.log(message);
                 for(let chat of bot.all_chats) {
                     // envia a mensagem para todos os chats
