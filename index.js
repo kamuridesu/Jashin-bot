@@ -41,7 +41,9 @@ class Bot {
 
         this.conn.on('chat-update', chatUpdate => {
             if (chatUpdate.messages && chatUpdate.count) {
-                this.getMessageContent(chatUpdate.messages.all()[0]); // processa a mensagem
+                if(JSON.parse(JSON.stringify(chatUpdate)).messages[0].messageStubType !== "REVOKE"){
+                    this.getMessageContent(chatUpdate.messages.all()[0]); // processa a mensagem
+                }
             }
         })
     }
@@ -152,6 +154,21 @@ class Bot {
         const to_who = to ? to : this.from;  // define para quem enviar
         await this.conn.sendMessage(to_who, text, MessageType.text); // envia a mensagem
         await this.conn.updatePresence(to_who, Presence.available); // atualiza o status do remetente para online.
+    }
+
+    /**
+     * envia mensagem de texto para alguem com mencion
+     * @param {string} text texto a ser enviado
+     * @param {string} mention quem mencionar
+     */
+    async sendTextMessageWithMention(text, mention) { // envia mensagem de texto para alguem com mencion
+        await this.conn.updatePresence(this.from, Presence.composing); // atualiza o status do remetente para "escrevendo"
+        await this.conn.sendMessage(this.from, text, MessageType.text, { // envia a mensagem
+            contextInfo: {
+                "mentionedJid": mention
+            }
+        });
+        await this.conn.updatePresence(mention, Presence.available); // atualiza o status do remetente para online.
     }
 }
 

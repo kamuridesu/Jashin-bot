@@ -1,6 +1,7 @@
 import axios from "axios";
 import fs from "fs";
 import { exec } from "child_process";
+import { randomBytes } from "crypto";
 
 
 /* FUNÇOES NECESSÁRIAS PARA O FUNCIONAMENTO IDEAL DO BOT
@@ -157,7 +158,7 @@ async function createMediaBuffer(url, options) {
         options ? options : {}
         const response = await axios({
             method: "get",
-            url,
+            url: url,
             headers: {
                 "DNT": 1,
                 "Upgrade-Insecure-Request": 1
@@ -173,3 +174,5 @@ async function createMediaBuffer(url, options) {
 }
 
 export { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot };
+
+

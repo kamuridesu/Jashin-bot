@@ -1,6 +1,7 @@
 import {MessageType, Mimetype, GroupSettingChange, getGotStream } from '@adiwajshing/baileys';
 import { createStickerFromMedia } from './user_functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
+import { createMediaBuffer } from './functions.js';
 
 /* TODOS OS COMANDOS DEVEM ESTAR NESTE ARQUIVO, MENOS OS COMANDOS SEM PREFIXO.
 CASO PRECISE DE FUNÇÕES GRANDES, SIGA A BOA PRÁTICA E ADICIONE ELAS NO ARQUIVO user_functions.js,
@@ -116,26 +117,105 @@ async function commandHandler(bot, cmd) {
         }
 
         case "gado": {
-            // diz a porcentagem de gadisse para alguem mencionado ou para quem usou o comando
-            let user = undefined;
-            if(bot.message_data.quoted) {
-                user = (JSON.parse(JSON.stringify(bot.message_data.context).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo.participant);
-                user = {
-                    user: user,
-                    name: "@" + bot.sender.split("@")[0]
-                };
-            }
-            if(user === undefined) {
-                user = {
-                    user: user,
-                    name: "@" + bot.sender.split("@")[0]
-                };
-                console.log(user)
-            }
-            let gado = Math.floor(Math.random() * 100);
-            return await bot.replyText(`${user.name} tem ${gado}% de gado!`, user.user);
+            let message = ["ultra extreme gado",
+                    "Gado-Master",
+                    "Gado-Rei",
+                    "Gado",
+                    "Escravo-ceta",
+                    "Escravo-ceta Maximo",
+                    "Gacorno?",
+                    "Jogador De Forno Livre<3",
+                    "Mestre Do Frifai<3<3",
+                    "Gado-Manso",
+                    "Gado-Conformado",
+                    "Gado-Incubado",
+                    "Gado Deus",
+                    "Mestre dos Gados",
+                    "Topa tudo por buceta",
+                    "Gado Comum",
+                    "Mini Gadinho",
+                    "Gado Iniciante",
+                    "Gado Basico",
+                    "Gado Intermediario",
+                    "Gado Avançado",
+                    "Gado Profisional",
+                    "Gado Mestre",
+                    "Gado Chifrudo",
+                    "Corno Conformado",
+                    "Corno HiperChifrudo",
+                    "Chifrudo Deus",
+                    "Mestre dos Chifrudos"
+            ];
+            let choice = message[Math.floor(Math.random() * message.length)];
+            message = `Você é:\n\n${choice}`;
+            return await bot.replyText(message);
         }
             
+        case "slot": {
+            const fruits_array = ['🥑', '🍉', '🍓', '🍎', '🍍', '🥝', '🍑', '🥥', '🍋', '🍐', '🍌', '🍒', '🔔', '🍊', '🍇']
+            let winner = []
+            for(let i = 0; i < 3; i++) {
+                winner.push(fruits_array[Math.floor(Math.random() * fruits_array.length)]);
+            }
+            let message = "Você perdeu!";
+            if(winner[0] === winner[1] === winner[2]) {
+                message = "Você ganhou!";
+            }
+            const slot_message =
+            `Consiga 3 iguais para ganhar
+╔═══ ≪ •❈• ≫ ════╗
+║         [💰SLOT💰 | 777 ]        
+║                                             
+║                                             
+║           ${winner.join(" : ")}  ◄━━┛
+║            
+║                                           
+║         [💰SLOT💰 | 777 ]        
+╚════ ≪ •❈• ≫ ═══╝
+
+${message}`
+            return bot.replyText(slot_message);
+        }
+
+        case "gay": {
+            const responses = [
+                'hmm... você é hetero😔',
+                '+/- boiola',
+                'tenho minha desconfiança...😑',
+                'você é né?😏',
+                'você é ou não?🧐',
+                'você é gay🙈'
+            ]
+            const percentage = Math.round(Math.random() * responses.length);
+            return bot.replyText("Hmmm, você é " + responses[percentage]);
+        }
+
+        case "chance": {
+            if(args.length == 0) {
+                error = "Você precisa especificar qual a chance, ex: chance de eu ficar off";
+            } else {
+                const text = args.join("");
+                return await bot.replyText("Chance " + text);
+            }
+            return await bot.replyText(error);
+        }
+
+        case "perfil": {
+            if(args.length == 0) {
+                error = "Preciso que um user seja mencionado!";
+            } else if(bot.message_data.context.message.extendedTextMessage) {
+                let mention = bot.message_data.context.message.extendedTextMessage.contextInfo.mentionedJid[0]
+                let profile_pic = "./etc/default_profile.png";
+                try{
+                    profile_pic = await bot.conn.getProfilePicture(mention);
+                } catch (e) {
+                    //
+                }
+                return bot.replyMedia(profile_pic, MessageType.image, Mimetype.png);
+            }
+            return bot.replyText(error);
+        }
+          
 
         /* %$ENDDIVERSAO$% */
 
