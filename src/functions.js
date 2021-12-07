@@ -35,10 +35,10 @@ async function checkUpdates(bot) {
  * Updates the bot, on fail sends message to bot owner.
  * @param {Bot} bot bot instance
  */
-async function updateBot(bot) {
+async function updateBot(bot, data) {
     // updates the bot
     exec("git pull origin main", (error) => {
-        bot.sendTextMessage("Não foi possivel atualizar> " + error, bot.owner_jid);  // send error message to owner
+        bot.sendTextMessage(data, "Não foi possivel atualizar> " + error, bot.owner_jid);  // send error message to owner
     })
 }
 
