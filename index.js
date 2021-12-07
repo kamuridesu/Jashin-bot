@@ -32,9 +32,6 @@ class MessageData {
     }
 }
 
-
-
-
 // classe Bot, onde as informações vão ser armazenadas e as requisições processadas.
 class Bot {
     constructor() {
@@ -43,6 +40,7 @@ class Bot {
         this.conn = undefined;
         this.prefix = owner_data.prefix;
         this.owner_jid = owner_data.owner;
+        this.has_updates = false;
     }
 
     async connectToWa() {
@@ -120,10 +118,11 @@ class Bot {
             }); // processa a mensagem como mensagem
         }
         if(this.has_updates) { // se tiver atualizações
+            console.log(this.has_updates)
             console.log("Atualização dispoível!");
             console.log("Atualizando...");
             await this.conn.updatePresence(bot_data.from, Presence.unavailable);
-            updateBot(this, {
+            await updateBot(this, {
                 message_data,
                 bot_data,
                 group_data

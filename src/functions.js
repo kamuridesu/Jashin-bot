@@ -5,7 +5,7 @@ import { randomBytes } from "crypto";
 
 
 /* FUNÇOES NECESSÁRIAS PARA O FUNCIONAMENTO IDEAL DO BOT
-NÃO PODEM SER MODIFICADAS OU EXLUÍDAS SEM O CONHECIMENTO NECESSÁRIO PARA MODIFICAR AS OUTRAS!
+NÃO PODEM SER MODIFICADAS OU EXCLUÍDAS SEM O CONHECIMENTO NECESSÁRIO PARA MODIFICAR AS OUTRAS!
 */
 
 /**
@@ -38,7 +38,10 @@ async function checkUpdates(bot) {
 async function updateBot(bot, data) {
     // updates the bot
     exec("git pull origin main", (error) => {
-        bot.sendTextMessage(data, "Não foi possivel atualizar> " + error, bot.owner_jid);  // send error message to owner
+        console.log("Rodando git pull");
+        if(error){
+            bot.sendTextMessage(data, "Não foi possivel atualizar> " + error, bot.owner_jid);  // send error message to owner
+        }
     })
 }
 

@@ -1,7 +1,9 @@
 import {MessageType, Mimetype, GroupSettingChange, getGotStream } from '@adiwajshing/baileys';
 import { createStickerFromMedia } from './user_functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
-import { createMediaBuffer } from './functions.js';
+import { exec } from 'child_process';
+import fs from 'fs';
+// import { createMediaBuffer } from './functions.js';
 
 /* TODOS OS COMANDOS DEVEM ESTAR NESTE ARQUIVO, MENOS OS COMANDOS SEM PREFIXO.
 CASO PRECISE DE FUNÇÕES GRANDES, SIGA A BOA PRÁTICA E ADICIONE ELAS NO ARQUIVO user_functions.js,
@@ -18,21 +20,21 @@ DEPOIS FAÇA IMPORT DESSA FUNÇÃO PARA ESTE ARQUIVO E USE NO SEU COMANDO!
 async function commandHandler(bot, cmd, data) {
 	const command = cmd.split(bot.prefix)[1].split(" ")[0]; // get the command
     const args = cmd.split(" ").slice(1); // get the arguments (if any) from the command
-    console.log("\x1b[0;31mComando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + "\x1b[0m");
-    let error = "Algo deu errado!";
+    console.log("\x1b[0;31mComando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + "\x1b[0m"); // log the command
+    let error = "Algo deu errado!"; // default error message
 
     switch (command) {
 
         /* %$INFO$% */
 
         case "start":
-            // retorna uma menssagem de apresentação
+            // retorna uma menssagem de apresentaçãov
             return await bot.replyText(data, "Hey! Sou um simples bot, porém ainda estou em desevolvimento!\nPara acompanhar meu progresso, acesse: https://github.com/kamuridesu/Jashin-bot");
 
         case "ajuda":
         case "menu":
             // retorna uma menssagem de apresentação
-            return await bot.replyText(data, await getAllCommands());
+            return await bot.replyText(data, await getAllCommands());   
 
         case "todoscmd":
             // retorna uma menssagem de apresentação
@@ -46,9 +48,36 @@ async function commandHandler(bot, cmd, data) {
 
         /* %$MIDIA$% */
 
-        case "music":
+        case "music":{
             // retorna uma musica
-            return await bot.replyMedia(data, "./config.test/music.mp3", MessageType.audio, Mimetype.mp4Audio);
+            if(args.length < 1) {
+                return await bot.replyText(data, "Por favor, escolha uma música!");
+            } else {
+                const argument = args.join(" "); // get the argument
+                // regex para ver se o argument é um link
+                const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?/;
+                if(regex.test(argument)) { // se o argumento for um link
+                    const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
+                    const query = "yt-dlp -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
+                    console.log(query); // loga a query
+                    exec(query, async (error) => { // executa a query
+                        if(error) { // se houver erro
+                            console.log("erro> " + error); // loga o erro
+                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            fs.unlinkSync(filename); // apaga o arquivo
+                            return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
+                        } else { // se não houver erro
+                            await bot.replyMedia(data, filename, MessageType.audio); // envia a música
+                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            fs.unlinkSync(filename);    // apaga o arquivo
+                            return;
+                        }
+                    })
+                }
+
+            }
+            break;
+        }
             
         case "image_from_url":{
             // retorna uma imagem de uma url
