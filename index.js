@@ -206,7 +206,7 @@ class Bot {
      * @param {string} text texto a ser enviado
      * @param {string} mention quem mencionar
      */
-    async sendTextMessageWithMention(text, mention) { // envia mensagem de texto para alguem com mencion
+    async sendTextMessageWithMention(data, text, mention) { // envia mensagem de texto para alguem com mencion
         const recipient = data.bot_data.from;
         // const context = data.message_data.context;
         await this.conn.updatePresence(recipient, Presence.composing); // atualiza o status do remetente para "escrevendo"

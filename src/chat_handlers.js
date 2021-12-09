@@ -9,9 +9,12 @@ async function messageHandler(bot, message, data) {
     // TODO: Adicione suas funções aqui!
     console.log("Mensagem recebida: " + message);
     await bot.conn.updatePresence(bot.from, Presence.available);
-    if(getBomDiaMessage(bot, data, message)) {
+    if(await getBomDiaMessage(bot, data, message)) {
+        console.log("bon dia")
         return;
-    };
+    } else if(await getLinkMessage(bot, message, data)) {
+        return;
+    }
 }
 
 async function getBomDiaMessage(bot, message, data) {
@@ -19,6 +22,7 @@ async function getBomDiaMessage(bot, message, data) {
         await bot.replyText(data, "BOM DIA!!!!!");
         return true;
     }
+    return false;
 }
 
 /**
@@ -27,13 +31,19 @@ async function getBomDiaMessage(bot, message, data) {
  * @param {string} message message to be checked
  * @param {object} data data object
  */
-async function getLinkMessage(bot, message) {
+async function getLinkMessage(bot, message, data) {
     // regex para pegar links no formato https://www.chat.whatsapp.com/32984ydhsfbnj237y
-    const regex = /https:\/\/www.chat.whatsapp.com\/[a-zA-Z0-9]+/g;
-    const match = message.match(regex);
+    const regex = /https:\/\/(www\.)?chat.whatsapp.com\/[A-za-z0-9]+/gi;
+    const match = regex.test(message);
     if(match) {
-        return bot.replyText("Link: " + match[0]);
+        // sendTextMessageWithMention
+        if(data.bot_data.is_group) {
+            await bot.sendTextMessageWithMention(data, "Link!", data.group_data.admins);
+            // return bot.replyText("Não pode mandar link!");
+            return true;
+        }
     }
+    return false;
 }
 
 export { messageHandler };

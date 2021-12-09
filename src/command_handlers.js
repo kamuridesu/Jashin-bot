@@ -81,6 +81,40 @@ async function commandHandler(bot, cmd, data) {
             break;
         }
 
+        case "video":{
+            // retorna um video
+            if(args.length < 1) {
+                return await bot.replyText(data, "Por favor, escolha um video");
+            } else {
+                const argument = args.join(" "); // get the argument
+                // regex para ver se o argument é um link
+                const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?/;
+                if(regex.test(argument)) { // se o argumento for um link
+                    let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
+                    const query = "yt-dlp -f mp4 -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
+                    filename = "./" + filename;
+                    console.log(query); // loga a query
+                    exec(query, async (error) => { // executa a query
+                        if(error) { // se houver erro
+                            console.log("erro> " + error); // loga o erro
+                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            fs.unlinkSync(filename); // apaga o arquivo
+                            return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
+                        } else { // se não houver erro
+                            await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
+                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            fs.unlinkSync(filename);    // apaga o arquivo
+                            return;
+                        }
+                    })
+                }
+
+            }
+            break;
+        }
+
+
+        case "vozes":
         case "voz": {
             if(args.length < 1) { // se não houver argumento
                 error = "Preciso do nome da voz a ser procurada!"; // mensagem de erro
@@ -146,6 +180,8 @@ async function commandHandler(bot, cmd, data) {
                     let media = {"error": "Não foi possível baixar o audio!", finished_at: null}; // cria um objeto para armazenar o audio
                     do {
                         media = await createMediaBuffer("https://api.uberduck.ai/speak-status?uuid=" + uuid, {"Authorization": "Basic " + keys}, "json"); // requisita a API
+                        // espera 1 segundo
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                     } while (media.finished_at == null);
                     if(media.failed_at == null) { // se não houver erro
                         return await bot.replyMedia(data, media.path, MessageType.audio, Mimetype.mp4Audio); // retorna a mensagem de sucesso
