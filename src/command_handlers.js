@@ -1,8 +1,10 @@
-import {MessageType, Mimetype, GroupSettingChange, getGotStream } from '@adiwajshing/baileys';
+import {MessageType, Mimetype, GroupSettingChange } from '@adiwajshing/baileys';
 import { createStickerFromMedia } from './user_functions.js';
+import{ createMediaBuffer, postDataToUrl } from './functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
 import { exec } from 'child_process';
 import fs from 'fs';
+import { create } from 'domain';
 // import { createMediaBuffer } from './functions.js';
 
 /* TODOS OS COMANDOS DEVEM ESTAR NESTE ARQUIVO, MENOS OS COMANDOS SEM PREFIXO.
@@ -38,7 +40,7 @@ async function commandHandler(bot, cmd, data) {
 
         case "todoscmd":
             // retorna uma menssagem de apresentação
-            return await bot.replyText(await getCommandsByCategory());
+            return await bot.replyText(data, await getCommandsByCategory());
 
         case "test":
             // retorna um teste
@@ -78,7 +80,84 @@ async function commandHandler(bot, cmd, data) {
             }
             break;
         }
-            
+
+        case "voz": {
+            if(args.length < 1) {
+                error = "Preciso do nome da voz a ser procurada!";
+            } else {
+                const name = args.join(" ").toLowerCase();
+                const req_url = "https://api.uberduck.ai/voices?mode=tts-basic";
+                const response = await createMediaBuffer(req_url, {}, "json");
+                const voz = {"result": false, name: []};
+                for (let object of response) {
+                    if(object.display_name.toLowerCase().includes(name) || object.name.toLowerCase().includes(name)) {
+                        voz.result = true;
+                        voz.name.push(object.name)
+                    }
+                }
+                if(voz.result) {
+                    return await bot.replyText(data, "A voz existe! Use uma das opções abaixo: \n\n" + voz.name.join("\n"));
+                } else {
+                    error = "A voz não existe";
+                }
+            }
+            return bot.replyText(data, error);
+        }
+
+        case "vozcateg": {
+            const req_url = "https://api.uberduck.ai/voices?mode=tts-basic";
+            const response = await createMediaBuffer(req_url, {}, "json");
+            let output = "--==Categorias==--\n\n";
+            for(let object of response) {
+                if(!output.includes(object.category)){
+                    output += object.category + "\n";
+                }
+            }
+            return await bot.replyText(data, output);
+        }
+
+        case "vozporcat": {
+            if(args.length < 1) {
+                error = "Preciso do nome da categoria!";
+            }
+            const name = args.join(" ").toLowerCase();
+            const req_url = "https://api.uberduck.ai/voices?mode=tts-basic";
+            const response = await createMediaBuffer(req_url, {}, "json");
+            let output = "--==Vozes==--\n\n";
+            for(let object of response) {
+                if(object.category.toLowerCase() == name) {
+                    output += object.name + "\n";
+                }
+            }
+            return await bot.replyText(data, output);   
+        }
+
+        case "audio": {
+            if(args.length < 2) {
+                error = "Preciso do nome da voz e do conteudo para criar o audio!";
+            } else {
+                const name = args[0].toLowerCase();
+                const content = args.slice(1).join(" ");
+                const keys = Buffer.from(`${bot.voice_synth.key}:${bot.voice_synth.secret}`).toString('base64');
+                await bot.replyText(data, "Aguarde alguns instantes enquanto processo...");
+                const response = await postDataToUrl(`https://api.uberduck.ai/speak`, JSON.stringify({"speech": content, "voice": name}), {"Authorization": "Basic " + keys}
+                );
+                if(response.uuid) {
+                    const uuid = response.uuid;
+                    let media = {"error": "Não foi possível baixar o audio!", finished_at: null};
+                    do {
+                        media = await createMediaBuffer("https://api.uberduck.ai/speak-status?uuid=" + uuid, {"Authorization": "Basic " + keys}, "json");
+                    } while (media.finished_at == null);
+                    if(media.failed_at == null) {
+                        return await bot.replyMedia(data, media.path, MessageType.audio, Mimetype.mp4Audio);
+                    }
+                } else {
+                    error = "Houve um erro ao processar a requisição! Verifique se o nome da voz é válido";
+                }
+            }
+            return await bot.replyText(data, error);
+        }
+
         case "image_from_url":{
             // retorna uma imagem de uma url
             // baixa uma imagem a partir de uma url e baixa a imagem

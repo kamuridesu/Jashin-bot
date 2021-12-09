@@ -9,12 +9,15 @@ async function messageHandler(bot, message, data) {
     // TODO: Adicione suas funções aqui!
     console.log("Mensagem recebida: " + message);
     await bot.conn.updatePresence(bot.from, Presence.available);
-    getBomDiaMessage(bot, message);
+    if(getBomDiaMessage(bot, data, message)) {
+        return;
+    };
 }
 
 async function getBomDiaMessage(bot, message, data) {
     if(message === "bom dia" || message === "Bom dia") {
-        return bot.replyText("BOM DIA!!!!!");
+        await bot.replyText(data, "BOM DIA!!!!!");
+        return true;
     }
 }
 

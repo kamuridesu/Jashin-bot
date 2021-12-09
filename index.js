@@ -40,6 +40,7 @@ class Bot {
         this.conn = undefined;
         this.prefix = owner_data.prefix;
         this.owner_jid = owner_data.owner;
+        this.voice_synth = owner_data.uberduck;
         this.has_updates = false;
     }
 

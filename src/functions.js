@@ -155,19 +155,19 @@ async function checkMessageData(message) {
  * @param {object} options options to download
  * @returns {object} with response data or error
  */
-async function createMediaBuffer(url, options) {
+async function createMediaBuffer(url, header, responsetype, options) {
     // create buffer from downloaded media
     try {
         options ? options : {}
         const response = await axios({
             method: "get",
             url: url,
-            headers: {
+            headers: header ? header : {
                 "DNT": 1,
                 "Upgrade-Insecure-Request": 1
             },
             ...options,
-            responseType: 'arraybuffer'
+            responseType: responsetype ? responsetype : 'arraybuffer'
         })
         return response.data
     } catch (e) {
@@ -176,6 +176,28 @@ async function createMediaBuffer(url, options) {
     }
 }
 
-export { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot };
+
+async function postDataToUrl(url, data, header, options) {
+    try {
+        options ? options : {}
+        const response = await axios( {
+            method: "post",
+            url: url,
+            headers : header ? header : {
+                "DNT": 1,
+                "Upgrade-Insecure-Request": 1
+            },
+            data: data ? data : "",
+            ...options,
+            responseType: "json"
+        });
+        return response.data
+    } catch (e) {
+        console.log("errro> " + e);
+        return {media: fs.readFileSync("./etc/error_image.png"), error: e}  // return error image
+    }
+}
+
+export { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot, postDataToUrl };
 
 

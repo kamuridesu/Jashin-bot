@@ -3,6 +3,7 @@ import pkg from "fluent-ffmpeg";
 const ffmpeg = pkg;
 import fs from "fs";
 import { exec } from "child_process";
+import axios from "axios";
 
 /**
  * adds metadata to sticker pack
@@ -93,5 +94,6 @@ async function createStickerFromMedia(bot, data, media, packname, author) {
     })
 
 }
+
 
 export { createStickerFromMedia }
