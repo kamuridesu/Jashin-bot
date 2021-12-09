@@ -100,13 +100,13 @@ async function commandHandler(bot, cmd, data) {
                             console.log("Apagando arquivo " + filename); // loga a mensagem
                             fs.unlinkSync(filename); // apaga o arquivo
                             return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
-                        } else { // se não houver erro
+                        }
+                    }).on("exit", async () => {
                             await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
                             console.log("Apagando arquivo " + filename); // loga a mensagem
                             fs.unlinkSync(filename);    // apaga o arquivo
                             return;
-                        }
-                    })
+                    });
                 }
 
             }
