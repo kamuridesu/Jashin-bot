@@ -18,14 +18,14 @@ class BotData {
     }
 }
 
-
+// dataclass para armazenar os dados do grupo
 class GroupData {
     constructor() {
         //
     }
 }
 
-
+// dataclass para armazenar os dados do usuário
 class MessageData {
     constructor() {
         //

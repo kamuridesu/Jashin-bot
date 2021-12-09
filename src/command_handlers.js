@@ -88,7 +88,7 @@ async function commandHandler(bot, cmd, data) {
             } else {
                 const argument = args.join(" "); // get the argument
                 // regex para ver se o argument é um link
-                const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?/;
+                const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
                 if(regex.test(argument)) { // se o argumento for um link
                     let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
                     const query = "yt-dlp -f mp4 -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
