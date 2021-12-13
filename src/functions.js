@@ -199,5 +199,3 @@ async function postDataToUrl(url, data, header, options) {
 }
 
 export { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot, postDataToUrl };
-
-

