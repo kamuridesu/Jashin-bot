@@ -63,7 +63,7 @@ async function commandHandler(bot, cmd, data) {
                     argument = "\"ytsearch:" + argument + "\"";
                 }
                 const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
-                const query = "yt-dlp -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
+                const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
                 console.log(query); // loga a query
                 exec(query, async (error) => { // executa a query
                     if(error) { // se houver erro
@@ -98,7 +98,7 @@ async function commandHandler(bot, cmd, data) {
                     argument = "\"ytsearch:" + argument + "\"";
                 }
                 let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
-                const query = "yt-dlp -f mp4 --max-filesize 30m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
+                const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 30m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
                 filename = "./" + filename;
                 console.log(query); // loga a query
                 exec(query, async (error) => { // executa a query 
