@@ -73,8 +73,10 @@ async function commandHandler(bot, cmd, data) {
                         return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
                     } else { // se não houver erro
                         await bot.replyMedia(data, filename, MessageType.audio); // envia a música
-                        console.log("Apagando arquivo " + filename); // loga a mensagem
-                        fs.unlinkSync(filename);    // apaga o arquivo
+                        if(fs.existsSync(filename)) { // se o arquivo existir
+                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            fs.unlinkSync(filename);    // apaga o arquivo
+                        }
                         return;
                     }
                 });
@@ -96,19 +98,26 @@ async function commandHandler(bot, cmd, data) {
                     argument = "\"ytsearch:" + argument + "\"";
                 }
                 let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
-                const query = "yt-dlp -f mp4 -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
+                const query = "yt-dlp -f mp4 --max-filesize 30m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
                 filename = "./" + filename;
                 console.log(query); // loga a query
-                exec(query, async (error) => { // executa a query
+                exec(query, async (error) => { // executa a query 
                     if(error) { // se houver erro
                         console.log("erro> " + error); // loga o erro
                         console.log("Apagando arquivo " + filename); // loga a mensagem
-                        fs.unlinkSync(filename); // apaga o arquivo
+                        if(fs.existsSync(filename + ".part")) { // se o arquivo existir
+                            fs.unlinkSync(filename + ".part"); // apaga o arquivo
+                        }
+                        if(fs.existsSync(filename)){
+                            fs.unlinkSync(filename);
+                        }
                         return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
                     } else { // se não houver erro
                         await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
-                        console.log("Apagando arquivo " + filename); // loga a mensagem
-                        fs.unlinkSync(filename);    // apaga o arquivo
+                        if(fs.existsSync(filename)) { // se o arquivo existir
+                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            fs.unlinkSync(filename);    // apaga o arquivo
+                        }
                         return;
                     }
                 });

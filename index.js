@@ -170,6 +170,8 @@ class Bot {
             if(media.error) { // se não conseguir fazer o download
                 caption = media.error.code, // pega o erro
                 media = media.media // pega a midia do erro
+                message_type = MessageType.image // define o tipo da mensagem como imagem
+                mime = Mimetype.png
             }
         }
         if (message_type === MessageType.sticker) { // se for um sticker
