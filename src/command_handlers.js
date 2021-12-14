@@ -1,5 +1,5 @@
 import {MessageType, Mimetype, GroupSettingChange } from '@adiwajshing/baileys';
-import { createStickerFromMedia } from './user_functions.js';
+import { createStickerFromMedia, quotationMarkParser } from './user_functions.js';
 import{ createMediaBuffer, postDataToUrl } from './functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
 import { exec } from 'child_process';
@@ -60,7 +60,7 @@ async function commandHandler(bot, cmd, data) {
                 // regex para ver se o argument é um link
                 const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
                 if(!regex.test(argument)) { // se o argumento for um link
-                    argument = "\"ytsearch:" + argument.trim("\"") + "\"";
+                    argument = "\"ytsearch:" + argument.replace(/\"/g, '') + "\"";
                 }
                 const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
@@ -95,7 +95,7 @@ async function commandHandler(bot, cmd, data) {
                 // regex para ver se o argument é um link
                 const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
                 if(!regex.test(argument)) { // se o argumento for um link
-                    argument = "\"ytsearch:" + argument.trim("\"") + "\"";
+                    argument = "\"ytsearch:" + argument.replace(/\"/g, '') + "\"";
                 }
                 let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 30m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
@@ -216,6 +216,23 @@ async function commandHandler(bot, cmd, data) {
             }
             return await bot.replyText(data, error);
         }
+
+        case "perfil": {
+            if(args.length == 0) {
+                error = "Preciso que um user seja mencionado!";
+            } else if(data.message_data.context.message.extendedTextMessage) {
+                let mention = data.message_data.context.message.extendedTextMessage.contextInfo.mentionedJid[0]
+                let profile_pic = "./etc/default_profile.png";
+                try{
+                    profile_pic = await bot.conn.getProfilePicture(mention);
+                } catch (e) {
+                    //
+                }
+                return bot.replyMedia(data, profile_pic, MessageType.image, Mimetype.png);
+            }
+            return bot.replyText(data, error);
+        }
+
         /* %$ENDMIDIA$% */
 
         /* %$DIVERSAO$% */
@@ -355,21 +372,42 @@ ${message}`
             return await bot.replyText(data, error);
         }
 
-        case "perfil": {
+        case "sorteio": {
             if(args.length == 0) {
-                error = "Preciso que um user seja mencionado!";
-            } else if(data.message_data.context.message.extendedTextMessage) {
-                let mention = data.message_data.context.message.extendedTextMessage.contextInfo.mentionedJid[0]
-                let profile_pic = "./etc/default_profile.png";
-                try{
-                    profile_pic = await bot.conn.getProfilePicture(mention);
-                } catch (e) {
-                    //
+                error = "Você precisa especificar o que você quer sortear, ex: sorteio de um carro";
+            } else if(args.length > (data.group_data.members.length - 1)) {
+                error = "Você não pode sortear mais pessoas do que tem no grupo!";
+            } else if(!data.bot_data.is_group) {
+                error = "Você precisa ser em um grupo para usar este comando!";
+            // } else if(!data.group_data.sender_is_admin) {
+            //     error = "Você precisa ser um administrador para usar este comando!";
+            } else {
+                let winners = {};
+                let winners_id = []
+                const items = quotationMarkParser(args.join(" "));
+                for(let i = 0; i < items.length; i++) {
+                    while(true){
+                        let prize_id = items[Math.floor(Math.random() * items.length)];
+                        let winner = data.group_data.members[Math.floor(Math.random() * data.group_data.members.length)];
+                        if (winner.jid === bot.bot_number || winners_id.includes(winner.jid)) {
+                            continue;
+                        }
+                        if(winners[prize_id] === undefined) {
+                            winners_id.push(winner.jid);
+                            winners[prize_id] = winner;
+                            break;
+                        }
+                    }
                 }
-                return bot.replyMedia(data, profile_pic, MessageType.image, Mimetype.png);
+                let message = "";
+                for(let prize_id in winners) {
+                    message += `${prize_id} - @${winners[prize_id].jid.split('@')[0]}\n`;
+                }
+                return await bot.sendTextMessageWithMention(data, message, winners_id);
             }
-            return bot.replyText(data, error);
+            return await bot.replyText(data, error);
         }
+
 
         /* %$ENDDIVERSAO$% */
 

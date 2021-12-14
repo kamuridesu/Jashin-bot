@@ -96,4 +96,33 @@ async function createStickerFromMedia(bot, data, media, packname, author) {
 }
 
 
-export { createStickerFromMedia }
+function quotationMarkParser(text) {
+    // separate the text into words, except if inside quotation marks
+    let words = text.split(/\s+/);
+    let in_quotes = false;
+    let quote_start = 0;
+    let quote_end = 0;
+    let quote_words = [];
+    for(let i = 0; i < words.length; i++) {
+        if(words[i].startsWith("\"")) {
+            if(!in_quotes) {
+                in_quotes = true;
+                quote_start = i;
+            }
+        } else if(words[i].endsWith("\"")) {
+            in_quotes = false;
+            quote_end = i;
+            let quote = words.slice(quote_start, quote_end + 1).join(" ");
+            quote_words.push(quote.replace(/\"/g, ""));
+        } else {
+            if(!in_quotes) {
+                quote_words.push(words[i]);
+            }
+        }
+    }
+    return quote_words;
+}
+
+
+
+export { createStickerFromMedia, quotationMarkParser };
