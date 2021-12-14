@@ -60,7 +60,7 @@ async function commandHandler(bot, cmd, data) {
                 // regex para ver se o argument é um link
                 const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
                 if(!regex.test(argument)) { // se o argumento for um link
-                    argument = "\"ytsearch:" + argument + "\"";
+                    argument = "\"ytsearch:" + argument.strip("\"") + "\"";
                 }
                 const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
@@ -95,7 +95,7 @@ async function commandHandler(bot, cmd, data) {
                 // regex para ver se o argument é um link
                 const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
                 if(!regex.test(argument)) { // se o argumento for um link
-                    argument = "\"ytsearch:" + argument + "\"";
+                    argument = "\"ytsearch:" + argument.strip("\"") + "\"";
                 }
                 let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 30m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
