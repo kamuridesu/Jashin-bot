@@ -4,3 +4,5 @@ package-lock.json
 deployments
 *.exif
 trava
+*.log
+*.sqlite

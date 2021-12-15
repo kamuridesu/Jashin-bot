@@ -2,6 +2,7 @@ import {MessageType, Mimetype, GroupSettingChange } from '@adiwajshing/baileys';
 import { createStickerFromMedia, quotationMarkParser } from './user_functions.js';
 import{ createMediaBuffer, postDataToUrl } from './functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
+import { Database } from "../databases/db.js";
 import { exec } from 'child_process';
 import fs from 'fs';
 
@@ -597,6 +598,30 @@ ${message}`
                 let message = args.join(" ");
                 let members_id = data.group_data.members.map(member => member.jid);  // pega os ids dos membros do grupo
                 return await bot.sendTextMessageWithMention(data, message, members_id);  // envia a mensagem para todos
+            }
+            return await bot.replyText(data, error);
+        }
+
+        case "welcome": {
+            if(!data.bot_data.is_group) {
+                error = "Erro! O chat atual não é um grupo!";
+            } else if (args.length === 0) {
+                error = "Erro! Preciso de alguma mensagem!";
+            } else if(!data.group_data.sender_is_admin) {
+                error = "Erro! Este comando só pode ser usado por admins!";
+            } else {
+                let message = args.join(" ");
+                if (message === "off") {
+                    data.group_data.db_data.welcome_message = "";
+                    data.group_data.db_data.welcome_on = false;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "Mensagem de boas vindas desativada!");
+                } else {
+                    data.group_data.db_data.welcome_message = message;
+                    data.group_data.db_data.welcome_on = true;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "Mensagem de boas vindas ativada!");
+                }
             }
             return await bot.replyText(data, error);
         }

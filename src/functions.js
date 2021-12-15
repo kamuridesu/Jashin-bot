@@ -1,7 +1,7 @@
 import axios from "axios";
 import fs from "fs";
 import { exec } from "child_process";
-import { randomBytes } from "crypto";
+import { Database } from "../databases/db.js";
 
 
 /* FUNÇOES NECESSÁRIAS PARA O FUNCIONAMENTO IDEAL DO BOT
