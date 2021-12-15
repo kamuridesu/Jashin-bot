@@ -198,4 +198,13 @@ async function postDataToUrl(url, data, header, options) {
     }
 }
 
-export { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot, postDataToUrl };
+
+function checkNumberInMessage(text) {
+    const regex = /@[0-9]{12}/g;
+    if(regex.test(text)) {
+        return text.match(regex).map(number => number.replace("@", "") + "@s.whatsapp.net");
+    }
+    return "";
+}
+
+export { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot, postDataToUrl, checkNumberInMessage };
