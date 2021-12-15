@@ -21,8 +21,9 @@ DEPOIS FAÇA IMPORT DESSA FUNÇÃO PARA ESTE ARQUIVO E USE NO SEU COMANDO!
  */
 async function commandHandler(bot, cmd, data) {
 	const command = cmd.split(bot.prefix)[1].split(" ")[0]; // get the command
+    if(command.length == 0) return; // if the command is empty, return
     const args = cmd.split(" ").slice(1); // get the arguments (if any) from the command
-    console.log("\x1b[0;31mComando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + "\x1b[0m"); // log the command
+    console.log("\x1b[0;31mComando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + " from " + data.bot_data.from + "\x1b[0m") ; // log the command
     let error = "Algo deu errado!"; // default error message
 
     switch (command) {
@@ -35,9 +36,6 @@ async function commandHandler(bot, cmd, data) {
 
         case "ajuda":
         case "menu":
-            // retorna uma menssagem de apresentação
-            return await bot.replyText(data, await getAllCommands());   
-
         case "todoscmd":
             // retorna uma menssagem de apresentação
             return await bot.replyText(data, await getCommandsByCategory());
@@ -98,7 +96,7 @@ async function commandHandler(bot, cmd, data) {
                     argument = "\"ytsearch:" + argument.replace(/\"/g, '') + "\"";
                 }
                 let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
-                const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 30m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
+                const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 100m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
                 filename = "./" + filename;
                 console.log(query); // loga a query
                 exec(query, async (error) => { // executa a query 
@@ -351,15 +349,17 @@ ${message}`
 
         case "gay": {
             const responses = [
-                'hmm... você é hetero😔',
+                'hmm... é hetero😔',
                 '+/- boiola',
                 'tenho minha desconfiança...😑',
-                'você é né?😏',
-                'você é ou não?🧐',
-                'você é gay🙈'
+                'é né?😏',
+                'é ou não?🧐',
+                'é gay🙈'
             ]
-            const percentage = Math.round(Math.random() * responses.length);
-            return bot.replyText(data, responses[percentage]);
+            const percentage = Math.round(Math.random() * 100);
+            const index = percentage <= 10 ? 0 : (percentage > 10 && percentage <= 20 ? 1 : (percentage > 20 && percentage <= 30 ? 2 : (percentage > 30 && percentage <= 40 ? 3 : (percentage > 40 && percentage <= 50 ? 4 : 5))));
+            const response = `Você é ${percentage}% gay\n\n${responses[index]}`
+            return bot.replyText(data, response);
         }
 
         case "chance": {
@@ -437,7 +437,7 @@ ${message}`
                 error = "Erro! Preciso de argumentos!";
             } else if(!data.group_data.sender_is_admin) {
                 error = "Erro! Este comando só pode ser usado por admins!";
-            } else if(!bot.group_data.bot_is_admin){
+            } else if(!data.group_data.bot_is_admin){
                 error = "Erro! O bot precisa ser admin!";
             } else {
                 const name = args.join(" ");
@@ -530,7 +530,7 @@ ${message}`
             }
             if(user_id !== undefined) {
                 user_id = user_id.split("@")[1] + "@s.whatsapp.net";  // transforma o id do usuário em um formato válido
-                if(!bot.group_data.admins_jid.includes(user_id)) {
+                if(!data.group_data.admins_jid.includes(user_id)) {
                     error = "Erro! Usuário não é admin!";
                 } else {
                     console.log(user_id);

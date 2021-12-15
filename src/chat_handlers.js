@@ -7,7 +7,7 @@ ADICIONE SUAS FUNÇÕES NO messageHandler APENAS!*/
 
 async function messageHandler(bot, message, data) {
     // TODO: Adicione suas funções aqui!
-    console.log("Mensagem recebida: " + message);
+    console.log("Mensagem recebida: " + (message ? message : data.message_data.type));
     await bot.conn.updatePresence(bot.from, Presence.available);
     if(await getBomDiaMessage(bot, data, message)) {
         console.log("bon dia")
