@@ -1,7 +1,7 @@
 // Imports
 import {WAConnection, MessageType, Mimetype, Presence } from '@adiwajshing/baileys';
 import { commandHandler } from "./src/command_handlers.js";
-import { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot } from './src/functions.js';
+import { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot, checkNumberInMessage } from './src/functions.js';
 import { messageHandler } from './src/chat_handlers.js';
 import fs from "fs";
 
@@ -140,6 +140,9 @@ class Bot {
         const context = data.message_data.context;
         // envia uma mensagem de texto para o usuario como resposta.
         await this.conn.updatePresence(recipient, Presence.composing); // atualiza o status do remetente para "escrevendo"
+        if (!mention){
+            mention = checkNumberInMessage(text);
+        }
         await this.conn.sendMessage(recipient, text, MessageType.text, { // envia a mensagem
             quoted: context,
             contextInfo: {
@@ -180,10 +183,17 @@ class Bot {
                 quoted: context
             })
         } else {
+            let mention = "";
+            if (caption){
+                mention = checkNumberInMessage(caption);
+            }
             await this.conn.sendMessage(recipient, media, message_type, { // envia a midia
                 mimetype: mime ? mime : '',
                 caption: (caption != undefined) ? caption : "",
-                quoted: context
+                quoted: context,
+                contextInfo: {
+                    "mentionedJid": mention ? mention : ""
+                }
             })
         }
         await this.conn.updatePresence(recipient, Presence.available); // atualiza o status do remetente para online.
@@ -197,9 +207,15 @@ class Bot {
     async sendTextMessage(data, text, to) { // envia mensagem de texto para alguem sem mencionar
         const recipient = data.bot_data.from;
         // const context = data.message_data.context;
+        let mention = "";
+        mention = checkNumberInMessage(text);
         await this.conn.updatePresence(recipient, Presence.composing); // atualiza o status do remetente para "escrevendo"
         const to_who = to ? to : recipient;  // define para quem enviar
-        await this.conn.sendMessage(to_who, text, MessageType.text); // envia a mensagem
+        await this.conn.sendMessage(to_who, text, MessageType.text, {
+            contextInfo: {
+                "mentionedJid": mention ? mention : ""
+            }
+        }); // envia a mensagem
         await this.conn.updatePresence(to_who, Presence.available); // atualiza o status do remetente para online.
     }
 
