@@ -373,9 +373,10 @@ ${message}`
         }
 
         case "sorteio": {
-            if(args.length == 0) {
+            const items = quotationMarkParser(args.join(" "));
+            if(items.length == 0) {
                 error = "Você precisa especificar o que você quer sortear, ex: sorteio de um carro";
-            } else if(args.length > (data.group_data.members.length - 1)) {
+            } else if(items.length > (data.group_data.members.length - 1)) {
                 error = "Você não pode sortear mais pessoas do que tem no grupo!";
             } else if(!data.bot_data.is_group) {
                 error = "Você precisa ser em um grupo para usar este comando!";
@@ -384,7 +385,6 @@ ${message}`
             } else {
                 let winners = {};
                 let winners_id = []
-                const items = quotationMarkParser(args.join(" "));
                 for(let i = 0; i < items.length; i++) {
                     while(true){
                         let prize_id = items[Math.floor(Math.random() * items.length)];
@@ -533,7 +533,6 @@ ${message}`
                 if(!data.group_data.admins_jid.includes(user_id)) {
                     error = "Erro! Usuário não é admin!";
                 } else {
-                    console.log(user_id);
                     await bot.conn.groupDemoteAdmin(data.group_data.id, [user_id]);  // rebaixa o usuário
                     return await bot.replyText(data, "Rebaixado com sucesso!");
                 }
@@ -580,7 +579,6 @@ ${message}`
                 error = "Erro! Só pode ser enviado pelo dono do bot!";
             } else {
                 const message = "[TRANSMISSÃO]\n\n" + args.join(" ");
-                console.log(message);
                 for(let chat of data.bot_data.all_chats) {
                     // envia a mensagem para todos os chats
                     bot.sendTextMessage(data, message, chat.jid);
