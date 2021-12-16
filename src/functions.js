@@ -155,7 +155,7 @@ async function checkMessageData(message) {
  * @param {object} options options to download
  * @returns {object} with response data or error
  */
-async function createMediaBuffer(url, header, responsetype, options) {
+async function getDataFromUrl(url, header, responsetype, options) {
     // create buffer from downloaded media
     try {
         options ? options : {}
@@ -207,4 +207,4 @@ function checkNumberInMessage(text) {
     return "";
 }
 
-export { checkGroupData, createMediaBuffer, checkMessageData, checkUpdates, updateBot, postDataToUrl, checkNumberInMessage };
+export { checkGroupData, getDataFromUrl, checkMessageData, checkUpdates, updateBot, postDataToUrl, checkNumberInMessage };

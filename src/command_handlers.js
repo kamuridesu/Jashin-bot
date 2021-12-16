@@ -1,6 +1,6 @@
 import {MessageType, Mimetype, GroupSettingChange } from '@adiwajshing/baileys';
 import { createStickerFromMedia, quotationMarkParser } from './user_functions.js';
-import{ createMediaBuffer, postDataToUrl } from './functions.js';
+import{ getDataFromUrl, postDataToUrl } from './functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
 import { Database } from "../databases/db.js";
 import { exec } from 'child_process';
@@ -140,7 +140,7 @@ async function commandHandler(bot, cmd, data) {
             } else {
                 const name = args.join(" ").toLowerCase(); // pega o nome da voz
                 const req_url = "https://api.uberduck.ai/voices?mode=tts-basic"; // url para requisição
-                const response = await createMediaBuffer(req_url, {}, "json"); ; // requisita a API
+                const response = await getDataFromUrl(req_url, {}, "json"); ; // requisita a API
                 if(response.error) {
                     return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
                 }
@@ -162,7 +162,7 @@ async function commandHandler(bot, cmd, data) {
 
         case "vozcateg": {
             const req_url = "https://api.uberduck.ai/voices?mode=tts-basic"; // url para requisição
-            const response = await createMediaBuffer(req_url, {}, "json"); // requisita a API   
+            const response = await getDataFromUrl(req_url, {}, "json"); // requisita a API   
             if(response.error) {
                 return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
             }
@@ -181,7 +181,7 @@ async function commandHandler(bot, cmd, data) {
             }
             const name = args.join(" ").toLowerCase(); // pega o nome da categoria
             const req_url = "https://api.uberduck.ai/voices?mode=tts-basic"; // url para requisição
-            const response = await createMediaBuffer(req_url, {}, "json"); // requisita a API
+            const response = await getDataFromUrl(req_url, {}, "json"); // requisita a API
             if(response.error) {
                 return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
             }
@@ -210,7 +210,7 @@ async function commandHandler(bot, cmd, data) {
                     const uuid = response.uuid; // pega o uuid
                     let media = {"error": "Não foi possível baixar o audio!", finished_at: null}; // cria um objeto para armazenar o audio
                     do {
-                        media = await createMediaBuffer("https://api.uberduck.ai/speak-status?uuid=" + uuid, {"Authorization": "Basic " + keys}, "json"); // requisita a API
+                        media = await getDataFromUrl("https://api.uberduck.ai/speak-status?uuid=" + uuid, {"Authorization": "Basic " + keys}, "json"); // requisita a API
                         if(media.error) {
                             return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
                         }
@@ -625,6 +625,30 @@ ${message}`
             }
             return await bot.replyText(data, error);
         }
+
+        case "antilink": {
+            if(!data.bot_data.is_group) {
+                error = "Erro! O chat atual não é um grupo!";
+            } else if(!data.group_data.sender_is_admin) {
+                error = "Erro! Este comando só pode ser usado por admins!";
+            } else if (args.length === 0) {
+                error = "Erro! Preciso saber se é on/off!";
+            } else if(["on", "off"].includes(args[0])) {
+                if(args[0] === "on") {
+                    data.group_data.db_data.anti_link_on = true;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "Antilink ativado!");
+                } else {
+                    data.group_data.db_data.anti_link_on = false;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "Antilink desativado!");
+                }
+            } else {
+                error = "Erro! Preciso saber se é on/off!";
+            }
+            return await bot.replyText(data, error);
+        }
+
 
 
         /* %$ENDADMIN$% */

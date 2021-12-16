@@ -6,3 +6,4 @@ deployments
 trava
 *.log
 *.sqlite
+*.opus

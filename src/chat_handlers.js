@@ -37,7 +37,7 @@ async function getLinkMessage(bot, message, data) {
     const match = regex.test(message);
     if(match) {
         // sendTextMessageWithMention
-        if(data.bot_data.is_group) {
+        if(data.bot_data.is_group && data.group_data.db_data.anti_link_on) {
             await bot.replyText(data, "É proíbido enviar links aqui! Os admins foram avisados disso!", data.group_data.admins);
             // return bot.replyText("Não pode mandar link!");
             return true;
