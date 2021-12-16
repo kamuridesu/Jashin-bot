@@ -1,5 +1,5 @@
 import {MessageType, Mimetype} from '@adiwajshing/baileys';
-import { getDataFromUrl } from './functions.js';
+import { getDataFromUrl, postDataToUrl } from './functions.js';
 import pkg from "fluent-ffmpeg";
 const ffmpeg = pkg;
 import fs from "fs";
@@ -175,19 +175,38 @@ class Waifu {
         this.api_base = "https://api.waifu.pics/";
     }
 
-    async get(type, category) {
+    async get(type, category, many) {
         const categories = type == ("sfw") ? this.sfw_categories : (type == ("nsfw") ? this.nsfw : null);
-        if (category === undefined) {
+        if(many && !category) {
+            return {error: "Invalid categoria"};
+        } else if (category === undefined) {
             category = categories.categories[Math.floor(Math.random() * categories.categories.length)];
-        } else {
-            return {error: "Category not found"};
+        } else if(!categories.categories.includes(category)) {
+            return {error: "Categoria não encontrada!"};
         }
-        const response = await getDataFromUrl(this.api_base + categories.name + "/" + category, {"Accept": "application/json"}, "json");
-        if(response.error) {
+        let response = {error: "Não foi possível obter a imagem"};
+        if(many) {
+            response = await postDataToUrl(this.api_base + "many/" + categories.name + "/" + category, {"Accept": "application/json"});    
+        } else {
+            response = await getDataFromUrl(this.api_base + categories.name + "/" + category, {"Accept": "application/json"}, "json");
+        }  
+        if(response.error || response.message) {
             return {error: response.error};
         }
-        if(response.url) {
-            return response.url;
+        if(response.url || response.files) {
+            return response;
+        }
+    }
+
+    async ajuda(type) {
+        const categories = type == ("sfw") ? this.sfw_categories : (type == ("nsfw") ? this.nsfw : null);
+        if(categories) {
+            return {
+                message: "Categorias disponíveis:\n\n" + categories.categories.join("\n"),
+                name: categories.name
+            }
+        } else {
+            return {error: "Categoria não encontrada"};
         }
     }
 
