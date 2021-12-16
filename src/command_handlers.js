@@ -1,5 +1,5 @@
 import {MessageType, Mimetype, GroupSettingChange } from '@adiwajshing/baileys';
-import { createStickerFromMedia, quotationMarkParser } from './user_functions.js';
+import { createStickerFromMedia, quotationMarkParser, convertGifToMp4, Waifu } from './user_functions.js';
 import{ getDataFromUrl, postDataToUrl } from './functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
 import { Database } from "../databases/db.js";
@@ -136,7 +136,7 @@ async function commandHandler(bot, cmd, data) {
         case "vozes":
         case "voz": {
             if(args.length < 1) { // se não houver argumento
-                error = "Preciso do nome da voz a ser procurada!"; // mensagem de erro
+                error = "Preciso do nome da voz a ser procurada!"; // mensagem de error
             } else {
                 const name = args.join(" ").toLowerCase(); // pega o nome da voz
                 const req_url = "https://api.uberduck.ai/voices?mode=tts-basic"; // url para requisição
@@ -254,6 +254,36 @@ async function commandHandler(bot, cmd, data) {
                 return bot.replyMedia(data, profile_pic, MessageType.image, Mimetype.png);
             }
             return bot.replyText(data, error);
+        }
+
+        case "sfwaifu": {
+            const waifu = new Waifu();
+            const image = await waifu.get("sfw");
+            if(image.error) {
+                return await bot.replyText(data, "Houve um erro ao processar!");
+            } else {
+                if(image.endsWith(".gif")) {
+                    const filename = Math.round(Math.random() * 100000) + ".gif";
+                    fs.writeFileSync(filename, await getDataFromUrl(image));
+                    return await convertGifToMp4(bot, data, filename);
+                }
+                return await bot.replyMedia(data, image, MessageType.image);
+            }
+        }
+
+        case "nsfwaifu": {
+            const waifu = new Waifu();
+            const image = await waifu.get("nsfw");
+            if(image.error) {
+                return await bot.replyText(data, "Houve um erro ao processar!");
+            } else {
+                if(image.endsWith(".gif")) {
+                    const filename = Math.round(Math.random() * 100000) + ".gif";
+                    fs.writeFileSync(filename, await getDataFromUrl(image));
+                    return await convertGifToMp4(bot, data, filename);
+                }
+                return await bot.replyMedia(data, image, MessageType.image);
+            }
         }
 
         /* %$ENDMIDIA$% */

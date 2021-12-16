@@ -1,9 +1,11 @@
 import {MessageType, Mimetype} from '@adiwajshing/baileys';
+import { getDataFromUrl } from './functions.js';
 import pkg from "fluent-ffmpeg";
 const ffmpeg = pkg;
 import fs from "fs";
 import { exec } from "child_process";
 import axios from "axios";
+import { threadId } from 'worker_threads';
 
 /**
  * adds metadata to sticker pack
@@ -96,6 +98,101 @@ async function createStickerFromMedia(bot, data, media, packname, author) {
 }
 
 
+async function convertGifToMp4(bot, data, media) {
+    const random_filename = "./gif" + Math.floor(Math.random() * 1000);
+    await ffmpeg(`./${media}`).input(media).on('start', (cmd) => {
+        console.log("Iniciando comando: " + cmd);
+    })
+    .addOutputOptions(["-movflags", "faststart", "-pix_fmt yuv420p", "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2"])
+    .toFormat('mp4')
+    .save(random_filename)
+    .on("error", (err) => {
+        console.log("error: " + err);
+        fs.unlinkSync(media);
+        return {error: err};
+    }
+    ).on("end", async () => {
+        console.log("Finalizando arquivo...");
+        await bot.replyMedia(data, random_filename, MessageType.video, Mimetype.gif);  // send video
+        console.log("Apagando arquivos locais");
+        fs.unlinkSync("./" + media);
+        fs.unlinkSync(random_filename);
+        console.log("Enviado com sucesso!");
+    });
+
+}
+
+
+class Waifu {
+    constructor() {
+        this.sfw_categories = {
+            categories: [
+                "waifu",
+                "neko",
+                "shinobu",
+                "megumin",
+                "bully",
+                "cuddle",
+                "cry",
+                "hug",
+                "awoo",
+                "kiss",
+                "lick",
+                "pat",
+                "smug",
+                "bonk",
+                "yeet",
+                "blush",
+                "smile",
+                "wave",
+                "highfive",
+                "handhold",
+                "nom",
+                "bite",
+                "glomp",
+                "slap",
+                "kill",
+                "kick",
+                "happy",
+                "wink",
+                "poke",
+                "dance",
+                "cringe"
+            ],
+            name: "sfw"
+        };
+
+        this.nsfw = {
+            categories:[
+                "waifu",
+                "neko",
+                "trap",
+                "blowjob"
+            ],
+            name: "nsfw"
+        };
+
+        this.api_base = "https://api.waifu.pics/";
+    }
+
+    async get(type, category) {
+        const categories = type == ("sfw") ? this.sfw_categories : (type == ("nsfw") ? this.nsfw : null);
+        if (category === undefined) {
+            category = categories.categories[Math.floor(Math.random() * categories.categories.length)];
+        } else {
+            return {error: "Category not found"};
+        }
+        const response = await getDataFromUrl(this.api_base + categories.name + "/" + category, {"Accept": "application/json"}, "json");
+        if(response.error) {
+            return {error: response.error};
+        }
+        if(response.url) {
+            return response.url;
+        }
+    }
+
+}
+
 function quotationMarkParser(text) {
     // separate the text into words, except if inside quotation marks
     if(!text) {
@@ -131,4 +228,4 @@ function quotationMarkParser(text) {
 
 
 
-export { createStickerFromMedia, quotationMarkParser };
+export { createStickerFromMedia, quotationMarkParser, convertGifToMp4, Waifu };
