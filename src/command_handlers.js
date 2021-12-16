@@ -204,7 +204,7 @@ async function commandHandler(bot, cmd, data) {
                 await bot.replyText(data, "Aguarde alguns instantes enquanto processo..."); // mensagem de aguarde
                 const response = await postDataToUrl(`https://api.uberduck.ai/speak`, JSON.stringify({"speech": content, "voice": name}), {"Authorization": "Basic " + keys} ); // requisita a API
                 if(response.error) {
-                    return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
+                    return await bot.replyText(data, "Houve um erro ao processar! Verifique se o nome da voz é válido com o comando !voz"); // retorna a mensagem de erro
                 }
                 if(response.uuid) { // se a resposta tiver uuid
                     const uuid = response.uuid; // pega o uuid
@@ -221,7 +221,7 @@ async function commandHandler(bot, cmd, data) {
                         return await bot.replyMedia(data, media.path, MessageType.audio, Mimetype.mp4Audio); // retorna a mensagem de sucesso
                     }
                 } else {
-                    error = "Houve um erro ao processar a requisição! Verifique se o nome da voz é válido";
+                    error = "Houve um erro ao processar! Verifique se o nome da voz é válido com o comando !voz";
                 }
             }
             return await bot.replyText(data, error);
@@ -271,55 +271,6 @@ async function commandHandler(bot, cmd, data) {
             }
         }
 
-        case "nsfwaifu": {
-            const waifu = new Waifu();
-            const image = await waifu.get("nsfw");
-            if(image.error) {
-                return await bot.replyText(data, "Houve um erro ao processar!");
-            } else {
-                if(image.url.endsWith(".gif")) {
-                    const filename = Math.round(Math.random() * 100000) + ".gif";
-                    fs.writeFileSync(filename, await getDataFromUrl(image.url));
-                    return await convertGifToMp4(bot, data, filename);
-                }
-                return await bot.replyMedia(data, image.url, MessageType.image);
-            }
-        }
-
-        case "hentai": {
-            const waifu = new Waifu();
-            if(args.length == 0) {
-                error = "Preciso que uma categoria seja enviada!";
-            } else if (args.join(" ")  == "ajuda") {
-                let e = await waifu.ajuda("nsfw");
-                if (e.error) {
-                    error = e.error;
-                } else {
-                    error = e.message;
-                }
-            } else {
-                const image = await waifu.get("nsfw", args.join(" "), true);
-                if(image.error) {
-                    console.log(image.error)
-                    error = image.error;
-                } else {
-                    if(image.files) {
-                        for(let file of image.files) {
-                            if(file.endsWith(".gif")) {
-                                const filename = Math.round(Math.random() * 100000) + ".gif";
-                                fs.writeFileSync(filename, await getDataFromUrl(file));
-                                convertGifToMp4(bot, data, filename);
-                            }
-                            bot.replyMedia(data, file, MessageType.image);
-                        }
-                        return;
-                    } else {
-                        error = "Houve um erro desconhecido!";
-                    }
-                }
-            }
-            return await bot.replyText(data, error);
-        }
 
         /* %$ENDMIDIA$% */
 
@@ -714,9 +665,61 @@ ${message}`
             return await bot.replyText(data, error);
         }
 
-
-
         /* %$ENDADMIN$% */
+
+        /* $%NSFW%$ */
+
+        case "nsfwaifu": {
+            const waifu = new Waifu();
+            const image = await waifu.get("nsfw");
+            if(image.error) {
+                return await bot.replyText(data, "Houve um erro ao processar!");
+            } else {
+                if(image.url.endsWith(".gif")) {
+                    const filename = Math.round(Math.random() * 100000) + ".gif";
+                    fs.writeFileSync(filename, await getDataFromUrl(image.url));
+                    return await convertGifToMp4(bot, data, filename);
+                }
+                return await bot.replyMedia(data, image.url, MessageType.image);
+            }
+        }
+
+        case "hentai": {
+            const waifu = new Waifu();
+            if(args.length == 0) {
+                error = "Preciso que uma categoria seja enviada!";
+            } else if (args.join(" ")  == "ajuda") {
+                let e = await waifu.ajuda("nsfw");
+                if (e.error) {
+                    error = e.error;
+                } else {
+                    error = e.message;
+                }
+            } else {
+                const image = await waifu.get("nsfw", args.join(" "), true);
+                if(image.error) {
+                    console.log(image.error)
+                    error = image.error;
+                } else {
+                    if(image.files) {
+                        for(let file of image.files) {
+                            if(file.endsWith(".gif")) {
+                                const filename = Math.round(Math.random() * 100000) + ".gif";
+                                fs.writeFileSync(filename, await getDataFromUrl(file));
+                                convertGifToMp4(bot, data, filename);
+                            }
+                            bot.replyMedia(data, file, MessageType.image);
+                        }
+                        return;
+                    } else {
+                        error = "Houve um erro desconhecido!";
+                    }
+                }
+            }
+            return await bot.replyText(data, error);
+        }
+
+        /* $%ENDNSFW%$ */
 
         /* %$BOTOWNER$% */
 
