@@ -71,6 +71,8 @@ async function commandHandler(bot, cmd, data) {
                 const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
                 if(!regex.test(argument)) { // se o argumento for um link
                     argument = "\"ytsearch:" + argument.replace(/\"/g, '') + "\"";
+                } else if(argument.includes("&&")) {
+                    argument = argument.split("&&")[0];
                 }
                 const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
