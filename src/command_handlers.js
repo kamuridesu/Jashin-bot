@@ -665,11 +665,38 @@ ${message}`
             return await bot.replyText(data, error);
         }
 
+        case "nsfw": {
+            if(!data.bot_data.is_group) {
+                error = "Erro! O chat atual não é um grupo!";
+            } else if(!data.group_data.sender_is_admin) {
+                error = "Erro! Este comando só pode ser usado por admins!";
+            } else if (args.length === 0) {
+                error = "Erro! Preciso saber se é on/off!";
+            } else if(["on", "off"].includes(args[0])) {
+                if(args[0] === "on") {
+                    data.group_data.db_data.nsfw_on = true;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "NSFW ativado!");
+                } else {
+                    data.group_data.db_data.nsfw_on = false;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "NSFW desativado!");
+                }
+            } else {
+                error = "Erro! Preciso saber se é on/off!";
+            }
+            return await bot.replyText(data, error);
+        }
+
+
         /* %$ENDADMIN$% */
 
         /* $%NSFW%$ */
 
         case "nsfwaifu": {
+            if(data.bot_data.is_group && !data.group_data.db_data.nsfw_on) {
+                return await bot.replyText(data, "Erro! Não é permitido usar este comando neste grupo!");
+            }
             const waifu = new Waifu();
             const image = await waifu.get("nsfw");
             if(image.error) {
@@ -685,6 +712,9 @@ ${message}`
         }
 
         case "hentai": {
+            if(data.bot_data.is_group && !data.group_data.db_data.nsfw_on) {
+                return await bot.replyText(data, "Erro! Não é permitido usar este comando neste grupo!");
+            }
             const waifu = new Waifu();
             if(args.length == 0) {
                 error = "Preciso que uma categoria seja enviada!";

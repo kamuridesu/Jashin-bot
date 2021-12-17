@@ -1,16 +1,36 @@
-echo "\033[0;32mInstalando pacotes..."
-
-if [ $(echo $PREFIX | grep -o "com.termux") ]; then # Termux (Android)
-    pkg update
-    pkg install nodejs ffmpeg libwebp git -y 2>&1 > /dev/null  # Instalando pacotes necessários para o funcionamento do script (NodeJS, FFmpeg, LibWebP, Git) e silenciando os outputs.
-    npm install -g npm@6 # we need to downgrade to npm 6 because https://github.com/npm/cli/issues/3577
+# verify package manager to install git ffmpeg, nodejs, npm, webp (apt, pacman, yum)
+echo "Instalando dependencias..."
+if [ $(which apt) ]; then
+    if [ $(which pkg) ]; then
+        yes | pkg update
+        apt update 2>&1>/dev/null
+        apt install curl git ffmpeg nodejs libwebp -y 2>&1>/dev/null
+        
+    else
+        apt update 2>&1>/dev/null
+        apt install curl git ffmpeg nodejs npm webp -y 2>&1>/dev/null || apt install curl git ffmpeg nodejs npm libwebp -y 2>&1>/dev/null || apt install curl git ffmpeg nodejs libwebp -y 2>&1>/dev/null
+    fi
+elif [ $(which pacman) ]; then
+  pacman -Sy curl git ffmpeg nodejs npm libwebp --noconfirm
+elif [ $(which yum) ]; then
+  yum install git curl ffmpeg nodejs npm libwebp --noconfirm
 else
-    apt update 2>&1 > /dev/null && curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -\nsudo apt-get install -y nodejs && apt install ffmpeg git webpx || pacman -Syu 2>&1 >/dev/null && pacman -S nodejs ffmpeg libwebp git
+  echo "No package manager found"
+  exit 1
 fi
-echo "\033[0;32mClonando bot..."
-git clone https://github.com/kamuridesu/Jashin-bot.git 2>&1 > /dev/null  # Clonando o bot.
-cd js-bot # Entrando no diretório do bot.
-echo "\033[0;32mInstalando dependencias..."
-npm i # Instalando dependencias do bot.
-echo "\033[0;32mIniciando..."
-npx nodemon index.js # Iniciando o bot.
+
+if [ "$1" != "-yt" ]; then  # if you don't want to install yt-dlp, use the -yt flag
+    echo "Instalando yt-dlp..."
+    curl https://gist.githubusercontent.com/kamuridesu/b56067968e154f16bfd1af6bde18e929/raw/8b32b4390983359b60941f429083daf5ee51aacf/yt-dlp.sh | bash
+fi
+
+# check if current folder is not a git repository
+if [ ! -d .git ]; then
+    echo "Baixando bot..."
+    git clone https://github.com/kamuridesu/Jashin-bot.git 2>&1>/dev/null
+    cd WhatsappBot
+fi
+
+# install node modules
+npm i
+npx nodemon index.js

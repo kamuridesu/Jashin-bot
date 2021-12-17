@@ -160,7 +160,8 @@ class Bot {
                     jid: group_data.id,
                     welcome_on: false,
                     welcome_message:"",
-                    anti_link_on: false
+                    anti_link_on: false,
+                    nsfw_on: false,
                 });
             }
             // console.log(db_data);

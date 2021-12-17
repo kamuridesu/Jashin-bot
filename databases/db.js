@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 const database = new Sequelize({
     dialect: 'sqlite',
-    storage: '../database.sqlite',
+    storage: './database.sqlite',
     logging: false
 });
 
@@ -30,7 +30,10 @@ class Database {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false
             },
-
+            nsfw_on: {
+                type: Sequelize.BOOLEAN,
+                defaultValue: false
+            },
         });
 
         this.users_infos = this.database.define('users_infos', {
@@ -96,7 +99,8 @@ class Database {
                             jid: infos.jid,
                             welcome_on: infos.welcome_on,
                             welcome_message: infos.welcome_message,
-                            anti_link_on: infos.anti_link_on
+                            anti_link_on: infos.anti_link_on,
+                            nsfw_on: infos.nsfw_on
                         });
                         console.log(result);
                     } catch (err) {
@@ -148,7 +152,8 @@ class Database {
                         const result = await this.group_infos.update({
                             welcome_on: infos.welcome_on,
                             welcome_message: infos.welcome_message,
-                            anti_link_on: infos.anti_link_on
+                            anti_link_on: infos.anti_link_on,
+                            nsfw_on: infos.nsfw_on
                         }, {
                             where: {
                                 jid: infos.jid
@@ -219,6 +224,7 @@ class Database {
             return JSON.parse(JSON.stringify(result));
         } catch (err) {
             console.log(err);
+            this.sync_db();
             return false;
         }
     }
@@ -233,6 +239,7 @@ class Database {
             return JSON.parse(JSON.stringify(result));
         } catch (err) {
             console.log(err);
+            this.sync_db();
             return false;
         }
     }
@@ -247,6 +254,7 @@ class Database {
             return JSON.parse(JSON.stringify(result));
         } catch (err) {
             console.log(err);
+            this.sync_db();
             return false;
         }
     }
@@ -257,6 +265,7 @@ class Database {
             return JSON.parse(JSON.stringify(result));
         } catch (err) {
             console.log(err);
+            this.sync_db();
             return false;
         }
     }

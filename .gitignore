@@ -7,3 +7,4 @@ trava
 *.log
 *.sqlite
 *.opus
+*.py
