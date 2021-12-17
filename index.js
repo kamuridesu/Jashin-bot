@@ -45,7 +45,7 @@ class Bot {
         this.voice_synth = owner_data.uberduck;
         this.has_updates = false;
         this.database = new Database();
-        this.logger = new Log("jashin_logs.log");
+        this.logger = new Log("./logger/jashin_logs.log");
     }
 
     async connectToWa() {
