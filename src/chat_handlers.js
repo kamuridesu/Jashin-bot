@@ -7,10 +7,9 @@ ADICIONE SUAS FUNÇÕES NO messageHandler APENAS!*/
 
 async function messageHandler(bot, message, data) {
     // TODO: Adicione suas funções aqui!
-    console.log("Mensagem recebida: " + (message ? message : data.message_data.type));
+    bot.logger.write("Mensagem: " + message + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""));
     await bot.conn.updatePresence(bot.from, Presence.available);
     if(await getBomDiaMessage(bot, data, message)) {
-        console.log("bon dia")
         return;
     } else if(await getLinkMessage(bot, message, data)) {
         return;

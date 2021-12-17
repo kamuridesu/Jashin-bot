@@ -22,7 +22,7 @@ async function commandHandler(bot, cmd, data) {
 	const command = cmd.split(bot.prefix)[1].split(" ")[0]; // get the command
     if(command.length == 0) return; // if the command is empty, return
     const args = cmd.split(" ").slice(1); // get the arguments (if any) from the command
-    console.log("\x1b[0;31mComando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + " from " + data.bot_data.from + "\x1b[0m") ; // log the command
+    bot.logger.write("Comando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""), 3);
     let error = "Algo deu errado!"; // default error message
 
     switch (command) {
@@ -72,17 +72,17 @@ async function commandHandler(bot, cmd, data) {
                 }
                 const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
-                console.log(query); // loga a query
+                bot.logger.write(query, 3); // loga a query
                 exec(query, async (error) => { // executa a query
                     if(error) { // se houver erro
-                        console.log("erro> " + error); // loga o erro
-                        console.log("Apagando arquivo " + filename); // loga a mensagem
+                        bot.logger.write("erro> " + error, 2); // loga o erro
+                        bot.logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
                         fs.unlinkSync(filename); // apaga o arquivo
                         return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
                     } else { // se não houver erro
                         await bot.replyMedia(data, filename, MessageType.audio); // envia a música
                         if(fs.existsSync(filename)) { // se o arquivo existir
-                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            bot.logger.write("Apagando arquivo " + filename); // loga a mensagem
                             fs.unlinkSync(filename);    // apaga o arquivo
                         }
                         return;
@@ -108,11 +108,11 @@ async function commandHandler(bot, cmd, data) {
                 let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 100m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
                 filename = "./" + filename;
-                console.log(query); // loga a query
+                bot.logger.write(query, 3); // loga a query
                 exec(query, async (error) => { // executa a query 
                     if(error) { // se houver erro
-                        console.log("erro> " + error); // loga o erro
-                        console.log("Apagando arquivo " + filename); // loga a mensagem
+                        bot.logger.write("erro> " + error, 2); // loga o erro
+                        bot.logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
                         if(fs.existsSync(filename + ".part")) { // se o arquivo existir
                             fs.unlinkSync(filename + ".part"); // apaga o arquivo
                         }
@@ -123,7 +123,7 @@ async function commandHandler(bot, cmd, data) {
                     } else { // se não houver erro
                         await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
                         if(fs.existsSync(filename)) { // se o arquivo existir
-                            console.log("Apagando arquivo " + filename); // loga a mensagem
+                            bot.logger.write("Apagando arquivo " + filename); // loga a mensagem
                             fs.unlinkSync(filename);    // apaga o arquivo
                         }
                         return;
@@ -408,6 +408,9 @@ ${message}`
                 error = "Você precisa especificar qual a chance, ex: !chance de eu ficar off";
             } else {
                 const text = args.join(" ");
+                if(text.includes("virgindade") || text.includes("virgindade") || text.includes("virgem")) {
+                    return await bot.replyText(data, "Nenhuma");
+                }
                 return await bot.replyText(data, "A chance " + text + " é de " + Math.round(Math.random() * 100) + "%");
             }
             return await bot.replyText(data, error);
@@ -728,7 +731,7 @@ ${message}`
             } else {
                 const image = await waifu.get("nsfw", args.join(" "), true);
                 if(image.error) {
-                    console.log(image.error)
+                    bot.logger.write(image.error, 2)
                     error = image.error;
                 } else {
                     if(image.files) {

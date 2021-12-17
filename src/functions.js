@@ -27,7 +27,7 @@ async function checkUpdates(bot) {
         });
         bot.has_updates = (response.data.version != actual_version);  // check if there is an update
     } catch (e) {
-        console.log(e);
+        this.logger.write(e, 2)
     }
 }
 
@@ -38,8 +38,9 @@ async function checkUpdates(bot) {
 async function updateBot(bot, data) {
     // updates the bot
     exec("git pull origin main", (error) => {
-        console.log("Rodando git pull");
+        this.logger.write("Rodando git pull", 3);
         if(error){
+            this.logger.write(error, 2);
             bot.sendTextMessage(data, "Não foi possivel atualizar> " + error, bot.owner_jid);  // send error message to owner
         }
     })
@@ -171,7 +172,7 @@ async function getDataFromUrl(url, header, responsetype, options) {
         })
         return response.data
     } catch (e) {
-        console.log("errro> " + e);
+        this.logger.write(e, 2)
         return {media: fs.readFileSync("./etc/error_image.png"), error: e}  // return error image
     }
 }
@@ -193,7 +194,7 @@ async function postDataToUrl(url, data, header, options) {
         });
         return response.data
     } catch (e) {
-        console.log("errro> " + e);
+        this.logger.write(e, 2)
         return {media: fs.readFileSync("./etc/error_image.png"), error: e}  // return error image
     }
 }

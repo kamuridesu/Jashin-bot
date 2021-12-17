@@ -4,6 +4,7 @@ import { commandHandler } from "./src/command_handlers.js";
 import { checkGroupData, getDataFromUrl, checkMessageData, checkUpdates, updateBot, checkNumberInMessage } from './src/functions.js';
 import { messageHandler } from './src/chat_handlers.js';
 import { Database } from "./databases/db.js";
+import { Log } from "./logger/logger.js"
 import fs from "fs";
 
 
@@ -44,6 +45,7 @@ class Bot {
         this.voice_synth = owner_data.uberduck;
         this.has_updates = false;
         this.database = new Database();
+        this.logger = new Log("jashin_logs.log");
     }
 
     async connectToWa() {
@@ -72,14 +74,12 @@ class Bot {
         });
 
         this.conn.on('group-participants-update', async (groupParticipantUpdate) => {
-            console.log("asdioasndio");
             try {
                 if(groupParticipantUpdate.action == "add") {
-                    console.log("add");
                     this.addMemberListener(groupParticipantUpdate.jid, groupParticipantUpdate.participants[0]);
                 }
             } catch (e) {
-                console.log(e);
+                this.logger.write(e, 2)
             }
         });
         // this.conn.on('')
@@ -88,13 +88,12 @@ class Bot {
     async addMemberListener(group_jid, member) {
         try {
             const group_infos = await this.database.get_group_infos(group_jid);
-            console.log(group_infos);
             if(group_infos.welcome_on) {
                 const message = "Olá @" + member.split("@")[0] + "\n\n" + group_infos.welcome_message;;
                 await this.sendTextMessage(group_jid, message);
             }
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
         }
     }
 
@@ -117,7 +116,7 @@ class Bot {
         try{
             bot_data.all_chats = this.conn.chats.all();  // pega todos os grupos
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
             return;
         }
         const message_data = await checkMessageData(message); // pega os dados da mensagem
@@ -131,7 +130,7 @@ class Bot {
             await this.conn.updatePresence(bot_data.from, Presence.available); // atualiza o status do remetente para online.
             await this.conn.chatRead(bot_data.from); // marca a mensagem como lida.
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
             return;
         }
         
@@ -139,7 +138,7 @@ class Bot {
         try{
             bot_data.sender_name = this.conn.contacts[bot_data.sender] ? this.conn.contacts[bot_data.sender].name : bot_data.sender; // pega o nome do remetente
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
             return;
         }
         bot_data.is_group = bot_data.sender.endsWith("@g.us"); // verifica se é um grupo
@@ -150,7 +149,7 @@ class Bot {
             try{
                 metadata = await this.conn.groupMetadata(bot_data.from) // pega os dados do grupo
             } catch (e) {
-                console.log(e);
+                this.logger.write(e, 2)
                 return;
             }
             group_data = await checkGroupData(metadata, this.bot_number, bot_data.sender); // processa os dados do grupo
@@ -191,7 +190,7 @@ class Bot {
             try{
                 await this.conn.updatePresence(bot_data.from, Presence.unavailable);
             } catch (e) {
-                console.log(e);
+                this.logger.write(e, 2)
                 return;
             }
             await updateBot(this, {
@@ -223,7 +222,7 @@ class Bot {
             });
             await this.conn.updatePresence(recipient, Presence.available); // atualiza o status do remetente para online.
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
             return;
         }
         
@@ -276,7 +275,7 @@ class Bot {
             }
             await this.conn.updatePresence(recipient, Presence.available); // atualiza o status do remetente para online.
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
             return;
         }
     }
@@ -301,7 +300,7 @@ class Bot {
             }); // envia a mensagem
             await this.conn.updatePresence(to_who, Presence.available); // atualiza o status do remetente para online.
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
             return;
         }
     }
@@ -323,7 +322,7 @@ class Bot {
             });
             await this.conn.updatePresence(mention, Presence.available); // atualiza o status do remetente para online.
         } catch (e) {
-            console.log(e);
+            this.logger.write(e, 2)
             return;
         }
     }
