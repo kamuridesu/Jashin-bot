@@ -54,7 +54,6 @@ import { threadId } from 'worker_threads';
     fs.writeFileSync(file_path, buffer, (error) => {
         return path;
     });
-    GifToMp4
 }
 
 /**

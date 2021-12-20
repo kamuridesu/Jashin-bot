@@ -1,5 +1,6 @@
 import { Presence } from "@adiwajshing/baileys";
 import { Log } from "../logger/logger.js";
+import { getDataFromUrl } from "./functions.js";
 
 /* USE ESTE ARQUIVO PARA MANIPULAR MENSSAGENS DE TEXTO, NÃO COMANDOS!
 PARA ISSO, CRIE FUNÇÕES PARA CADA MENSSAGEM QUE VOCÊ QUER RESPONDER! 
@@ -15,6 +16,8 @@ async function messageHandler(bot, message, data) {
         return;
     } else if(await getLinkMessage(bot, message, data)) {
         return;
+    } else if(data.group_data.db_data.chatbot_on && !["imageMessage", "videoMessage", "audioMessage", "stickerMessage"].includes(data.message_data.type)) {
+        await chatbot(bot, data, message);
     }
 }
 
@@ -45,6 +48,15 @@ async function getLinkMessage(bot, message, data) {
         }
     }
     return false;
+}
+
+async function chatbot(bot, data, message) {
+    const response = await getDataFromUrl("http://localhost:8080/?text=" + message, {}, "json");
+    if (response.status == "OK") {
+        await bot.replyText(data, response.response);
+    } else {
+        await bot.replyText(data, "Desculpe, não entendi!");
+    }
 }
 
 export { messageHandler };

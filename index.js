@@ -161,6 +161,7 @@ class Bot {
                     welcome_message:"",
                     anti_link_on: false,
                     nsfw_on: false,
+                    chatbot_on: false,
                 });
             }
             // console.log(db_data);
