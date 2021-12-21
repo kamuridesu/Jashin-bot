@@ -432,7 +432,9 @@ ${message}`
 
         case "sorteio": {
             const items = quotationMarkParser(args.join(" "));
-            if(items.length == 0) {
+            if(!data.bot_data.is_group) {
+                error = "Você so pode sortear em grupo!";
+            } else if(items.length == 0) {
                 error = "Você precisa especificar o que você quer sortear, ex: sorteio de um carro";
             } else if(items.length > (data.group_data.members.length - 1)) {
                 error = "Você não pode sortear mais pessoas do que tem no grupo!";

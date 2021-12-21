@@ -16,8 +16,8 @@ async function messageHandler(bot, message, data) {
         return;
     } else if(await getLinkMessage(bot, message, data)) {
         return;
-    } else if(data.group_data.db_data.chatbot_on && !["imageMessage", "videoMessage", "audioMessage", "stickerMessage"].includes(data.message_data.type)) {
-        await chatbot(bot, data, message);
+    } else if(await chatbot(bot, data, message)) {
+        return;
     }
 }
 
@@ -51,12 +51,21 @@ async function getLinkMessage(bot, message, data) {
 }
 
 async function chatbot(bot, data, message) {
-    const response = await getDataFromUrl("http://localhost:8080/?text=" + message, {}, "json");
-    if (response.status == "OK") {
-        await bot.replyText(data, response.response);
-    } else {
-        await bot.replyText(data, "Desculpe, não entendi!");
+    // remove emojis do texto
+    if(data.bot_data.is_group && !data.group_data.db_data.chatbot_on){
+        return;
     }
+    if(!["imageMessage", "videoMessage", "audioMessage", "stickerMessage"].includes(data.message_data.type)) {
+        const response = await getDataFromUrl("http://localhost:8080/?text=" + message, {}, "json");
+        if (response.status == "OK") {
+            await bot.replyText(data, response.response);
+        } else {
+            await bot.replyText(data, "Desculpe, não entendi!");
+        }
+        return true;
+    }
+    return false;
+    
 }
 
 export { messageHandler };

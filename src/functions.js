@@ -156,6 +156,7 @@ async function checkMessageData(message) {
  * @returns {object} with response data or error
  */
 async function getDataFromUrl(url, header, responsetype, options) {
+    url = encodeURI(url);
     const logger = new Log("./logger/functions.log");
     // create buffer from downloaded media
     try {
