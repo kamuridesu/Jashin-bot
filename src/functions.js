@@ -158,6 +158,7 @@ async function checkMessageData(message) {
 async function getDataFromUrl(url, header, responsetype, options) {
     url = encodeURI(url);
     const logger = new Log("./logger/functions.log");
+    // logger.write("Downloading media from url: " + url, 3);
     // create buffer from downloaded media
     try {
         options ? options : {}

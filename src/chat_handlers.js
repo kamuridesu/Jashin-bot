@@ -16,9 +16,8 @@ async function messageHandler(bot, message, data) {
         return;
     } else if(await getLinkMessage(bot, message, data)) {
         return;
-    } else if(await chatbot(bot, data, message)) {
-        return;
     }
+    chatbot(bot, data, message);
 }
 
 async function getBomDiaMessage(bot, message, data) {

@@ -68,7 +68,10 @@ class Bot {
         this.conn.on('chat-update', async chatUpdate => {
             if (chatUpdate.messages && chatUpdate.count) {
                 if(JSON.parse(JSON.stringify(chatUpdate)).messages[0].messageStubType !== "REVOKE"){
+                    // console.log(chatUpdate.messages.all()[0]);
                     this.getMessageContent(chatUpdate.messages.all()[0]); // processa a mensagem
+                } else if (JSON.parse(JSON.stringify(chatUpdate)).messages[0].messageStubType === "REVOKE") {
+                    // console.log(chatUpdate.messages.all()[0]);
                 }
             }
         });
@@ -89,7 +92,7 @@ class Bot {
         try {
             const group_infos = await this.database.get_group_infos(group_jid);
             if(group_infos.welcome_on) {
-                const message = "Olá @" + member.split("@")[0] + "\n\n" + group_infos.welcome_message;;
+                const message = "Olá @" + member.split("@")[0] + "\n\n" + group_infos.welcome_message;
                 await this.sendTextMessage(group_jid, message);
             }
         } catch (e) {
@@ -178,7 +181,7 @@ class Bot {
             }); // processa a mensagem como comando
             // retorna se for command, evita que o bot atualize quando tiver recebendo comando.
         } else {
-            await messageHandler(this, message_data.body, {
+            messageHandler(this, message_data.body, {
                 message_data,
                 bot_data,
                 group_data
