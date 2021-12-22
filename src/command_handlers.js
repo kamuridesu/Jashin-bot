@@ -1,7 +1,7 @@
 import {MessageType, Mimetype, GroupSettingChange, ChatModification } from '@adiwajshing/baileys';
 import { createStickerFromMedia, convertGifToMp4, Waifu } from './user_functions.js';
 import{ getDataFromUrl, postDataToUrl, quotationMarkParser } from './functions.js';
-import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
+import { getAllCommands, getCommandsByCategory, getAjuda } from "../docs/DOC_commands.js";
 import { Database } from "../databases/db.js";
 import { exec } from 'child_process';
 import { Log } from "../logger/logger.js";
@@ -32,21 +32,30 @@ async function commandHandler(bot, cmd, data) {
         /* %$INFO$% */
 
         case "start":
-            // retorna uma menssagem de apresentaçãov
-            return await bot.replyText(data, "Hey! Sou um simples bot, porém ainda estou em desevolvimento!\nPara acompanhar meu progresso, acesse: https://github.com/kamuridesu/Jashin-bot");
+            // comment="retorna uma apresentação do bot"
+            return await bot.replyText(data, "Hey! Sou um simples bot, porém ainda estou em desevolvimento!\n\nGrupo oficial: https://chat.whatsapp.com/GiZaCU2nmtxIWeCfe98kvi\nPara acompanhar meu progresso, acesse: https://github.com/kamuridesu/Jashin-bot");
 
         case "ajuda":
+            // comment="retorna um menu de comandos, envie um comando para saber mais sobre o mesmo, ex: !ajuda !ajuda"
         case "menu":
-        case "todoscmd":
-            // retorna uma menssagem de apresentação
+            // comment="retorna um menu de comandos, envie um comando para saber mais sobre o mesmo, ex: !menu !menu"
+        case "todoscmd": {
+            // comment="retorna um menu de comandos, envie um comando para saber mais sobre o mesmo, ex: !todos_cmd !todos_cmd"
+            if(args.length >= 1) {
+                const command_name = args[0];
+                const command_data = await getAjuda(command_name);
+                if(!command_data) return await bot.replyText(data, "Este comando não existe!");
+                return await bot.replyText(data, command_data);
+            }
             return await bot.replyText(data, await getCommandsByCategory());
+        }
 
         case "test":
-            // retorna um teste
+            // comment="retorna um teste"
             return await bot.replyText(data, "testando 1 2 3");
 
         case "bug": {
-            // retorna um bug
+            // comment="reporta um bug para o dono, ex: !bug detalhes do bug"
             if (args.length < 1) {
                 return await bot.replyText(data, "Por favor, digite o bug que você está reportando!");
             }
@@ -61,6 +70,7 @@ async function commandHandler(bot, cmd, data) {
         /* %$MIDIA$% */
 
         case "music":{
+            // comment="envia uma música a partir de um link ou pequisa no youtube, ex: !music link_da_musica"
             bot.replyText(data, "Aguarde enquanto eu baixo a musica...");
             // retorna uma musica
             if(args.length < 1) {
@@ -98,7 +108,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "video":{
-            // retorna um video
+            // comment="envia um vídeo a partir de um link ou pequisa no youtube, ex: !video link_do_video"
             if(args.length < 1) {
                 return await bot.replyText(data, "Por favor, escolha um video");
             } else {
@@ -138,7 +148,9 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "vozes":
+            // comment="pesquisa uma voz para gerar o audio, ex: !vozes seu madruga"
         case "voz": {
+            // comment="pesquisa uma voz para gerar o audio !voz seu madruga"
             if(args.length < 1) { // se não houver argumento
                 error = "Preciso do nome da voz a ser procurada!"; // mensagem de error
             } else {
@@ -165,6 +177,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "vozcateg": {
+            // comment="mostra as categorias de vozes, ex: !vozcateg"
             const req_url = "https://api.uberduck.ai/voices?mode=tts-basic"; // url para requisição
             const response = await getDataFromUrl(req_url, {}, "json"); // requisita a API   
             if(response.error) {
@@ -180,6 +193,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "vozporcat": {
+            // comment="mostra as vozes de uma categoria, ex: !vozporcat Portal"
             if(args.length < 1) { // se não houver argumento
                 error = "Preciso do nome da categoria!"; // mensagem de erro
             }
@@ -199,6 +213,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "audio": {
+            // comment="gera um audio a partir de uma voz, ex: !audio seu-madruga a vingança nunca é plena, mata a alma e a envenena"
             if(args.length < 2) { // se não houver argumento
                 error = "Preciso do nome da voz e do conteudo para criar o audio!"; // mensagem de erro
             } else {
@@ -232,6 +247,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "image_from_url":{
+            // comment="gera uma imagem a partir de uma url, ex: !image_from_url http://kamuridesu.tech/static/images/github_logo.png"
             // retorna uma imagem de uma url
             // baixa uma imagem a partir de uma url e baixa a imagem
             if (args.length < 1) {
@@ -245,6 +261,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "perfil": {
+            // comment="pega a imagem de perfil do usuário, ex: !perfil @kamuridesu"
             if(args.length == 0) {
                 error = "Preciso que um user seja mencionado!";
             } else if(data.message_data.context.message.extendedTextMessage) {
@@ -261,6 +278,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "sfwaifu": {
+            // comment="mostra uma imagem aleatória de uma waifu, podendo ser por categoria, ex: !sfwaifu [kiss]"
             const waifu = new Waifu();
             const image = await waifu.get("sfw");
             if(image.error) {
@@ -281,10 +299,11 @@ async function commandHandler(bot, cmd, data) {
         /* %$DIVERSAO$% */
 
         case "repeat":
-            // repete uma menssagem
+            // comment="repete a mensagem, ex: !repeat oi"
             return await bot.sendTextMessage(data, args.join(" "));
 
         case 'sticker': {
+            // comment="cria sticker"
             // retorna um sticker
             let media = undefined;
             let packname = "kamuribot";
@@ -332,6 +351,7 @@ async function commandHandler(bot, cmd, data) {
         }
 
         case "gado": {
+            // comment="mostra seu nivel de gado"
             let message = ["ultra extreme gado",
                     "Gado-Master",
                     "Gado-Rei",
@@ -367,32 +387,40 @@ async function commandHandler(bot, cmd, data) {
         }
             
         case "slot": {
-            const fruits_array = ['🥑', '🍉', '🍓', '🍎', '🍍', '🥝', '🍑', '🥥', '🍋', '🍐', '🍌', '🍒', '🔔', '🍊', '🍇']
-            let winner = []
-            for(let i = 0; i < 3; i++) {
-                winner.push(fruits_array[Math.floor(Math.random() * fruits_array.length)]);
-            }
-            let message = "Você perdeu!";
-            if(winner[0] === winner[1] === winner[2]) {
-                message = "Você ganhou!";
-            }
-            const slot_message =
-            `Consiga 3 iguais para ganhar
-╔═══ ≪ •❈• ≫ ════╗
-║         [💰SLOT💰 | 777 ]        
-║                                             
-║                                             
-║           ${winner.join(" : ")}  ◄━━┛
-║            
-║                                           
-║         [💰SLOT💰 | 777 ]        
-╚════ ≪ •❈• ≫ ═══╝
+            // comment="joga um slot"
+            if (data.sender_data.slot_chances > 0) {
+                data.sender_data.slot_chances = data.sender_data.slot_chances - 1;
+                const fruits_array = ['🥑', '🍉', '🍓', '🍎', '🍍', '🥝', '🍑', '🥥', '🍋', '🍐', '🍌', '🍒', '🔔', '🍊', '🍇']
+                let winner = []
+                for(let i = 0; i < 3; i++) {
+                    winner.push(fruits_array[Math.floor(Math.random() * fruits_array.length)]);
+                }
+                let message = "Você perdeu! Restam " + data.sender_data.slot_chances + " chances!";
+                if(winner[0] === winner[1] === winner[2]) {
+                    message = "Você ganhou!";
+                    data.sender_data.slot_chances = 0;
+                }
+                bot.database.update("user_infos", data.sender_data);
+                const slot_message =
+                `Consiga 3 iguais para ganhar
+    ╔═══ ≪ •❈• ≫ ════╗
+    ║         [💰SLOT💰 | 777 ]        
+    ║                                             
+    ║                                             
+    ║           ${winner.join(" : ")}  ◄━━┛
+    ║            
+    ║                                           
+    ║         [💰SLOT💰 | 777 ]        
+    ╚════ ≪ •❈• ≫ ═══╝
 
-${message}`
-            return bot.replyText(data, slot_message);
+    ${message}`
+                return bot.replyText(data, slot_message);
+            }
+            return await bot.replyText(data, "Você não tem mais chances!");
         }
 
         case "gay": {
+            // comment="mostra seu nivel de gay"
             const responses = [
                 'hmm... é hetero😔',
                 '+/- boiola',
@@ -408,6 +436,7 @@ ${message}`
         }
 
         case "chance": {
+            // comment="mostra uma chance de algo, ex: chance de eu ganhar na loteria"
             if(args.length == 0) {
                 error = "Você precisa especificar qual a chance, ex: !chance de eu ficar off";
             } else {
@@ -421,6 +450,7 @@ ${message}`
         }
 
         case "perc": {
+            // comment="mostra uma porcentagem, ex: perc hombre"
             if(args.length == 0) {
                 error = "Você dizer o nome da porcentagem!";
             } else {
@@ -431,6 +461,7 @@ ${message}`
         }
 
         case "sorteio": {
+            // comment="sorteia items, ex: sorteio cama mesa banho"
             const items = quotationMarkParser(args.join(" "));
             if(!data.bot_data.is_group) {
                 error = "Você so pode sortear em grupo!";
@@ -474,6 +505,7 @@ ${message}`
         /* %$ADMIN$% */
 
         case "desc": {
+            // comment="muda a descrição do grupo, ex: desc oi eu sou goku"
             // muda a descrição do grupo
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
@@ -490,6 +522,7 @@ ${message}`
         }
 
         case "mudanome": {
+            // comment="muda o nome do grupo, ex: mudanome oi eu sou goku"
             // muda o nome do grupo
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
@@ -509,6 +542,7 @@ ${message}`
         }
 
         case "trancar": {
+            // comment="tranca o grupo"
             // fecha o grupo, apenas admins podem falar
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
@@ -526,6 +560,7 @@ ${message}`
         }
 
         case "abrir": {
+            // comment="abre o grupo"
             // abre o grupo, todos podem falar
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
@@ -543,6 +578,7 @@ ${message}`
         }
 
         case "promover":{
+            // comment="promove um membro para admin, ex: !promover @goku"
             let user_id = undefined;
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
@@ -572,6 +608,7 @@ ${message}`
         }
 
         case "rebaixar":{
+            // comment="rebaixa um admin, ex: !rebaixar @goku"
             let user_id = undefined;
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
@@ -601,6 +638,7 @@ ${message}`
         }
 
         case "link": {
+            // comment="pega o link do grupo"
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
             } else if(!data.group_data.bot_is_admin) {
@@ -613,6 +651,7 @@ ${message}`
         }
 
         case "todos": {
+            // comment="marca todos os membros do grupo em hidetag, ex: !todos oi"
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
             } else if (args.length === 0) {
@@ -628,6 +667,7 @@ ${message}`
         }
 
         case "welcome": {
+            // comment="configura mensagem de boas vindas, use !welcome off para desligar. ex: !welcome oi"
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
             } else if (args.length === 0) {
@@ -652,6 +692,7 @@ ${message}`
         }
 
         case "antilink": {
+            // comment="configura o bloqueio de links, ex: !antilink [off/on]"
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
             } else if(!data.group_data.sender_is_admin) {
@@ -675,6 +716,7 @@ ${message}`
         }
 
         case "nsfw": {
+            // comment="configura nsfw, ex: !nsfw [off/on]"
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
             } else if(!data.group_data.sender_is_admin) {
@@ -698,6 +740,7 @@ ${message}`
         }
 
         case "chatbot": {
+            // comment="configura o chatbot, ex: !chatbot [off/on]"
             if(!data.bot_data.is_group) {
                 error = "Erro! O chat atual não é um grupo!";
             } else if(!data.group_data.sender_is_admin) {
@@ -726,6 +769,7 @@ ${message}`
         /* $%NSFW%$ */
 
         case "nsfwaifu": {
+            // comment="envia uma imagem nsfw, podendo pesquisar por categoria, ex: !nsfwaifu [categoria]"
             if(data.bot_data.is_group && !data.group_data.db_data.nsfw_on) {
                 return await bot.replyText(data, "Erro! Não é permitido usar este comando neste grupo!");
             }
@@ -744,6 +788,7 @@ ${message}`
         }
 
         case "hentai": {
+            // comment="envia 30 imagens hentai, podendo pesquisar por categoria, ex: !hentai [categoria]. Use !hentai ajuda para saber as categorias"
             if(data.bot_data.is_group && !data.group_data.db_data.nsfw_on) {
                 return await bot.replyText(data, "Erro! Não é permitido usar este comando neste grupo!");
             }
@@ -786,6 +831,7 @@ ${message}`
         /* %$BOTOWNER$% */
 
         case "transmitir": {
+            // comment="transmite mensagens para todos os chats"
             if(args.length < 1) {
                 error = "Erro! Preciso de argumentos!";
             } else if(!data.bot_data.sender_is_owner) {
@@ -802,6 +848,7 @@ ${message}`
         }
 
         case "travar": {
+            // comment="trava um numero"
             if(!data.bot_data.sender_is_owner) {
                 error = "Erro! Só pode ser enviado pelo dono do bot!";
             } else if (args.length < 1) {

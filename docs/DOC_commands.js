@@ -1,4 +1,5 @@
 import fs from "fs";
+import { quotationMarkParser } from "../src/functions.js";
 
 async function getAllCommands() {
     // console.log();
@@ -15,10 +16,14 @@ Comandos:
     return document_string;
 }
 
-async function getCommandsByCategory() {
-    const command_file_content = fs.readFileSync(process.cwd() + "/src/command_handlers.js", "utf-8");
+function getFileLines(filename) {
+    const command_file_content = fs.readFileSync(filename, "utf-8");
     // const command_file_content = fs.readFileSync("../src/command_handlers.js", "utf-8");
     const command_lines = (command_file_content.split("\n"));
+    return command_lines;
+}
+
+function processCategories(command_lines) {
     let category_indexes = []
     let category_ends = []
     let last_category = undefined;
@@ -40,6 +45,16 @@ async function getCommandsByCategory() {
             }
         }
     }
+    return [category_indexes, category_ends];
+}
+
+async function getCommandsByCategory() {
+    const command_lines = getFileLines(process.cwd() + "/src/command_handlers.js");
+    let category_indexes = []
+    let category_ends = []
+    let categories = processCategories(command_lines);
+    category_indexes = categories[0];
+    category_ends = categories[1];
     if(category_ends.length != category_indexes.length) {
         return "Erro! Algumas categorias não possuem tags de fechamento!";
     }
@@ -58,4 +73,36 @@ async function getCommandsByCategory() {
     return text;
 }
 
-export { getAllCommands, getCommandsByCategory };
+function getCommandComment() {
+    const command_lines = getFileLines(process.cwd() + "/src/command_handlers.js");
+    let commands = {};
+    let is_cmd = false;
+    let cmd_name = "";
+    for(let i = 0; i < command_lines.length; i++) {
+        const line = command_lines[i].trim();
+        if (line.startsWith("case")) {
+            is_cmd = true;
+            cmd_name = line.split("case")[1].split(":")[0].replace(/"/g, '').replace(/'/g, '').trim();
+            commands[cmd_name] = {
+                description: "",
+            };
+        }
+        if(is_cmd) {
+            if(line.includes("// comment")) {
+                commands[cmd_name].description = quotationMarkParser(line.split("// comment=")[1].trim())[0];
+                is_cmd = false;
+            }
+        }
+    }
+    return commands;
+}
+
+
+async function getAjuda(cmd_name) {
+    const comments = getCommandComment();
+    if(comments[cmd_name]) {
+        return comments[cmd_name].description;
+    }
+}
+
+export { getAllCommands, getCommandsByCategory, getAjuda };

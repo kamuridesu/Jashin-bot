@@ -6,6 +6,7 @@ import { messageHandler } from './src/chat_handlers.js';
 import { Database } from "./databases/db.js";
 import { Log } from "./logger/logger.js"
 import fs from "fs";
+import { send } from 'process';
 
 
 // dataclass para armazenar os dados do bot
@@ -173,18 +174,28 @@ class Bot {
         if (bot_data.sender === this.owner_jid || bot_data.from === this.owner_jid) { // se for o dono do bot
             bot_data.sender_is_owner = true; // define que o remetente é o dono do bot
         }
+        let sender_data = await this.database.get_user_infos(bot_data.sender); // pega os dados do remetente no banco de dados
+        if(sender_data == null) {
+            await this.database.insert("user_infos", {
+                jid: bot_data.sender,
+                slot_chances: 50
+            });
+        }
+        sender_data = await this.database.get_user_infos(bot_data.sender); // pega os dados do remetente no banco de dados
         if (message_data.body.startsWith(this.prefix)) { // se a mensagem começar com o prefixo
             return await commandHandler(this, message_data.body, {
                 message_data,
                 bot_data,
-                group_data
+                group_data,
+                sender_data
             }); // processa a mensagem como comando
             // retorna se for command, evita que o bot atualize quando tiver recebendo comando.
         } else {
             messageHandler(this, message_data.body, {
                 message_data,
                 bot_data,
-                group_data
+                group_data,
+                sender_data
             }); // processa a mensagem como mensagem
         }
         if(this.has_updates) { // se tiver atualizações

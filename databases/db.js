@@ -100,6 +100,7 @@ class Database {
     }
 
     async insert(table_name, infos) { // insert a new row in the database
+        console.log(table_name);
         if(await this.sync_db()) { // synchronize the database
             switch (table_name) { // switch on the table name
                 case 'group_infos': // if the table name is group_infos
@@ -117,7 +118,8 @@ class Database {
                         console.log(err);
                     }
                     break;
-                case 'users_infos':
+                case 'user_infos':
+                    console.log(infos)
                     try{
                         const result = await this.users_infos.create({ // create a new row in the users_infos table
                             jid: infos.jid, // set the jid column to the jid parameter
@@ -175,7 +177,7 @@ class Database {
                         console.log(err);
                     }
                     break;
-                case 'users_infos':
+                case 'user_infos':
                     try{
                         const result = await this.users_infos.update({
                             slot_chances: infos.slot_chances
@@ -240,7 +242,7 @@ class Database {
         }
     }
 
-    async get_users_infos(jid) {
+    async get_user_infos(jid) {
         try {
             const result = await this.users_infos.findOne({
                 where: {
