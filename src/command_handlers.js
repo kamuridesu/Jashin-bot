@@ -1,6 +1,6 @@
 import {MessageType, Mimetype, GroupSettingChange, ChatModification } from '@adiwajshing/baileys';
-import { createStickerFromMedia, quotationMarkParser, convertGifToMp4, Waifu } from './user_functions.js';
-import{ getDataFromUrl, postDataToUrl } from './functions.js';
+import { createStickerFromMedia, convertGifToMp4, Waifu } from './user_functions.js';
+import{ getDataFromUrl, postDataToUrl, quotationMarkParser } from './functions.js';
 import { getAllCommands, getCommandsByCategory } from "../docs/DOC_commands.js";
 import { Database } from "../databases/db.js";
 import { exec } from 'child_process';
