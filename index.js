@@ -21,20 +21,6 @@ class BotData {
     }
 }
 
-// dataclass para armazenar os dados do grupo
-class GroupData {
-    constructor() {
-        //
-    }
-}
-
-// dataclass para armazenar os dados do usuário
-class MessageData {
-    constructor() {
-        //
-    }
-}
-
 // classe Bot, onde as informações vão ser armazenadas e as requisições processadas.
 class Bot {
     constructor() {
@@ -52,6 +38,7 @@ class Bot {
     async connectToWa() {
         // conecta ao whatsapp
         this.conn = new WAConnection();
+        // const call = new Call/
         const config_auth_filename = "./config/config.auth.json";
         // carrega as configurações de autenticação
         try{

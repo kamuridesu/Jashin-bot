@@ -65,6 +65,31 @@ async function commandHandler(bot, cmd, data) {
             return await bot.replyText(data, "Bug reportado com sucesso! O abuso desse comando pode ser punido!");
         }
 
+        case "traduzir": {
+            // comment="traduz um texto para outro idioma, ex: !traduzir pt texto"
+            if (args.length < 2) {
+                return await bot.replyText(data, "Por favor, digite o idioma que você deseja traduzir e o texto que você deseja traduzir!");
+            }
+            const lang = args[0];
+            const text = args.slice(1).join(" ");
+            const response = await getDataFromUrl("http://localhost:8080/translate?text=" + text + "&target=" + lang, {}, "json");
+            if(response.error) return await bot.replyText(data, "Algo deu errado! Verifique se o idioma é válido!");
+            return await bot.replyText(data, response.text);
+        }
+
+        case "idiomas":
+        case "linguagens": {
+            // comment="retorna uma lista de idiomas disponíveis"
+            const response = await getDataFromUrl("http://localhost:8080/languages", {}, "json");
+            if(response.error) return await bot.replyText(data, "Algo deu errado!");
+            let output = "Idiomas disponíveis:\n";
+            for(const lang in response.text) {
+                output += lang + ": " + response.text[lang] + "\n";
+            }
+            return await bot.replyText(data, output);
+        }
+
+
         /* %$ENDINFO$% */
 
         /* %$MIDIA$% */

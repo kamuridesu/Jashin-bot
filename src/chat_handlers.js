@@ -54,9 +54,9 @@ async function chatbot(bot, data, message) {
         return;
     }
     if(!["imageMessage", "videoMessage", "audioMessage", "stickerMessage"].includes(data.message_data.type)) {
-        const response = await getDataFromUrl("http://localhost:8080/?text=" + message, {}, "json");
+        const response = await getDataFromUrl("http://localhost:8080/chatbot?text=" + message, {}, "json");
         if (response.status == "OK") {
-            await bot.replyText(data, response.response);
+            await bot.replyText(data, response.text.response);
         } else {
             await bot.replyText(data, "Desculpe, não entendi!");
         }
