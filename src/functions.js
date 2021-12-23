@@ -225,7 +225,10 @@ function quotationMarkParser(text) {
     for(let i = 0; i < words.length; i++) {
         if(words[i].startsWith("\"")) {
             if(words[i].endsWith("\"")) {
-                quote_words.push(words[i].replace(/\"/g, "").trim());
+                const word = words[i].replace(/\"/g, "").trim();
+                if (word != "") {
+                    quote_words.push(word);
+                }
             }
             else if(!in_quotes) {
                 in_quotes = true;
@@ -234,11 +237,16 @@ function quotationMarkParser(text) {
         } else if(words[i].endsWith("\"")) {
             in_quotes = false;
             quote_end = i;
-            let quote = words.slice(quote_start, quote_end + 1).join(" ");
-            quote_words.push(quote.replace(/\"/g, "").trim());
+            let quote = words.slice(quote_start, quote_end + 1).join(" ").replace(/\"/g, "").trim();
+            if (quote != "") {
+                quote_words.push(quote);
+            }
         } else {
             if(!in_quotes) {
-                quote_words.push(words[i].trim());
+                const word = words[i].trim();
+                if (word != "") {
+                    quote_words.push(word);
+                }
             }
         }
     }

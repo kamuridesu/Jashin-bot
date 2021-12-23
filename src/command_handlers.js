@@ -84,9 +84,11 @@ async function commandHandler(bot, cmd, data) {
                 } else if(argument.includes("&&")) {
                     argument = argument.split("&&")[0]; 
                 }
-                const filename = Math.round(Math.random() * 100000) + ".opus"; // cria um nome aleatório para o arquivo
-                const query = "yt-dlp --no-check-certificates -x -S 'res:480' " + " -o " + filename + " " + argument; // query para baixar a música
+                let filename = Math.round(Math.random() * 100000) + ""; // cria um nome aleatório para o arquivo
+                // const query = "yt-dlp --no-check-certificates -x -f 'ba' --audio-format mp3 " + " -o " + filename + " " + argument; // query para baixar a música
+                const query =  `yt-dlp -f 'ba' -x --audio-format mp3 ${argument} -o '${filename}.%(ext)s'`
                 logger.write(query, 3); // loga a query
+                filename = filename + ".mp3"
                 exec(query, async (error) => { // executa a query
                     if(error) { // se houver erro
                         logger.write("erro> " + error, 2); // loga o erro
@@ -389,7 +391,7 @@ async function commandHandler(bot, cmd, data) {
         case "slot": {
             // comment="joga um slot"
             if (data.sender_data.slot_chances > 0) {
-                data.sender_data.slot_chances = data.sender_data.slot_chances - 1;
+                // data.sender_data.slot_chances = data.sender_data.slot_chances - 1;
                 const fruits_array = ['🥑', '🍉', '🍓', '🍎', '🍍', '🥝', '🍑', '🥥', '🍋', '🍐', '🍌', '🍒', '🔔', '🍊', '🍇']
                 // const fruits_array = ['🥑', '🍉']
                 let winner = []
@@ -401,8 +403,8 @@ async function commandHandler(bot, cmd, data) {
                 if((winner[0] === winner[1]) && (winner[1] === winner[2]) && (winner[2] == winner[0])) {
                     message = "Você ganhou!";
                     data.sender_data.slot_chances = 0;
+                    bot.database.update("user_infos", data.sender_data);
                 }
-                bot.database.update("user_infos", data.sender_data);
                 const slot_message =
                 `Consiga 3 iguais para ganhar
     ╔═══ ≪ •❈• ≫ ════╗
