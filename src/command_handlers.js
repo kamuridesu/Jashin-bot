@@ -21,7 +21,7 @@ DEPOIS FAÇA IMPORT DESSA FUNÇÃO PARA ESTE ARQUIVO E USE NO SEU COMANDO!
  */
 async function commandHandler(bot, cmd, data) {
     const logger = new Log("./logger/commands.log");
-	const command = cmd.split(bot.prefix)[1].split(" ")[0]; // get the command
+	const command = cmd.split(bot.prefix)[1].split(" ")[0].toLowerCase(); // get the command
     if(command.length == 0) return; // if the command is empty, return
     const args = cmd.split(" ").slice(1); // get the arguments (if any) from the command
     logger.write("Comando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""), 3);
@@ -33,7 +33,7 @@ async function commandHandler(bot, cmd, data) {
 
         case "start":
             // comment="retorna uma apresentação do bot"
-            return await bot.replyText(data, "Hey! Sou um simples bot, porém ainda estou em desevolvimento!\n\nGrupo oficial: https://chat.whatsapp.com/GiZaCU2nmtxIWeCfe98kvi\nPara acompanhar meu progresso, acesse: https://github.com/kamuridesu/Jashin-bot");
+            return await bot.replyText(data, "Hey! Sou um simples bot, porém ainda estou em desevolvimento!\n\nGrupo oficial: https://chat.whatsapp.com/GiZaCU2nmtxIWeCfe98kvi\nCaso queira me apoiar no Patreon: https://www.patreon.com/kamuridesu");
 
         case "ajuda":
             // comment="retorna um menu de comandos, envie um comando para saber mais sobre o mesmo, ex: !ajuda !ajuda"
@@ -391,12 +391,14 @@ async function commandHandler(bot, cmd, data) {
             if (data.sender_data.slot_chances > 0) {
                 data.sender_data.slot_chances = data.sender_data.slot_chances - 1;
                 const fruits_array = ['🥑', '🍉', '🍓', '🍎', '🍍', '🥝', '🍑', '🥥', '🍋', '🍐', '🍌', '🍒', '🔔', '🍊', '🍇']
+                // const fruits_array = ['🥑', '🍉']
                 let winner = []
                 for(let i = 0; i < 3; i++) {
                     winner.push(fruits_array[Math.floor(Math.random() * fruits_array.length)]);
                 }
+                console.log(winner);
                 let message = "Você perdeu! Restam " + data.sender_data.slot_chances + " chances!";
-                if(winner[0] === winner[1] === winner[2]) {
+                if((winner[0] === winner[1]) && (winner[1] === winner[2]) && (winner[2] == winner[0])) {
                     message = "Você ganhou!";
                     data.sender_data.slot_chances = 0;
                 }
@@ -416,6 +418,8 @@ async function commandHandler(bot, cmd, data) {
     ${message}`
                 return bot.replyText(data, slot_message);
             }
+            data.sender_data.slot_chances = 50;
+            bot.database.update("user_infos", data.sender_data);
             return await bot.replyText(data, "Você não tem mais chances!");
         }
 
