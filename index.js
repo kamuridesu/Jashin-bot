@@ -94,7 +94,7 @@ class Bot {
             const group_infos = await this.database.get_group_infos(group_jid);
             if(group_infos.welcome_on) {
                 const message = "Olá @" + member.split("@")[0] + "\n\n" + group_infos.welcome_message;
-                await this.sendTextMessage(group_jid, message);
+                this.sendTextMessage(group_jid, message);
             }
         } catch (e) {
             this.logger.write(e, 2)
@@ -183,7 +183,11 @@ class Bot {
         }
         sender_data = await this.database.get_user_infos(bot_data.sender); // pega os dados do remetente no banco de dados
         if (message_data.body.startsWith(this.prefix)) { // se a mensagem começar com o prefixo
-            return await commandHandler(this, message_data.body, {
+            if(message_data.body.includes("!slot")) {
+                sender_data.slot_chances = sender_data.slot_chances - 1;
+                this.database.update("user_infos", sender_data);
+            }
+            return commandHandler(this, message_data.body, {
                 message_data,
                 bot_data,
                 group_data,
