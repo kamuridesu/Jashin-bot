@@ -5,18 +5,13 @@ services:
     restart: always
     volumes:
       - "./logger:/home/app/Jashin-bot/logger/"
+      - "./docker_conf:/home/app/Jashin-bot/common_conf/"
 
   chatbot:
     build: ./apis
     restart: always
     volumes:
       - "./logger:/home/logger/"
+      - "./docker_conf:/home/common_conf/"
     ports:
       - "8000:8080"
-
-  test_deploy:
-    image: debian:latest
-    command: ["tail", "-f", "/dev/null"]
-    volumes:
-      - "./logger:/home/logger/"
-      

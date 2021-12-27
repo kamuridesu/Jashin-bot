@@ -1,6 +1,6 @@
-import { Presence } from "@adiwajshing/baileys";
 import { Log } from "../logger/logger.js";
 import { getDataFromUrl } from "./functions.js";
+import fs from "fs";
 
 /* USE ESTE ARQUIVO PARA MANIPULAR MENSSAGENS DE TEXTO, NÃO COMANDOS!
 PARA ISSO, CRIE FUNÇÕES PARA CADA MENSSAGEM QUE VOCÊ QUER RESPONDER! 
@@ -49,12 +49,15 @@ async function getLinkMessage(bot, message, data) {
 }
 
 async function chatbot(bot, data, message) {
-    // remove emojis do texto
     if(data.bot_data.is_group && !data.group_data.db_data.chatbot_on){
         return;
     }
+    const routes = JSON.parse(fs.readFileSync("./common_conf/routes.json"));
+    const host = routes.chatbot.host;
+    const port = routes.chatbot.port;
+    const url = `http://${host}:${port}/chatbot?text=${message}`
     if(!["imageMessage", "videoMessage", "audioMessage", "stickerMessage"].includes(data.message_data.type)) {
-        const response = await getDataFromUrl("http://localhost:8080/chatbot?text=" + message, {}, "json");
+        const response = await getDataFromUrl(url, {}, "json");
         if (response.status == "OK") {
             await bot.replyText(data, response.text.response);
         } else {

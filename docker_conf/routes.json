@@ -1,0 +1,6 @@
+{
+    "chatbot": {
+        "host": "chatbot",
+        "port": "8080"
+    }
+}
