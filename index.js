@@ -6,7 +6,6 @@ import { messageHandler } from './src/chat_handlers.js';
 import { Database } from "./databases/db.js";
 import { Log } from "./logger/logger.js"
 import fs from "fs";
-import { send } from 'process';
 
 
 // dataclass para armazenar os dados do bot

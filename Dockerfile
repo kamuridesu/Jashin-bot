@@ -6,7 +6,5 @@ RUN chmod +x ./install.sh
 RUN ./install.sh
 COPY ./config/config.auth.json ./Jashin-bot/config/
 COPY ./config/config.admin.json ./Jashin-bot/config/
-RUN ls ./Jashin-bot
-RUN pwd
 COPY ./entrypoint.sh /usr/local/bin/
 CMD ["entrypoint.sh"]
