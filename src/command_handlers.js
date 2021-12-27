@@ -72,7 +72,8 @@ async function commandHandler(bot, cmd, data) {
             }
             const lang = args[0];
             const text = args.slice(1).join(" ");
-            const response = await getDataFromUrl("http://localhost:8080/translate?text=" + text + "&target=" + lang, {}, "json");
+            
+            const response = await getDataFromUrl(`http://${host}:${port}/translate?text=` + text + "&target=" + lang, {}, "json");
             if(response.error) return await bot.replyText(data, "Algo deu errado! Verifique se o idioma é válido!");
             return await bot.replyText(data, response.text);
         }
@@ -80,7 +81,7 @@ async function commandHandler(bot, cmd, data) {
         case "idiomas":
         case "linguagens": {
             // comment="retorna uma lista de idiomas disponíveis"
-            const response = await getDataFromUrl("http://localhost:8080/languages", {}, "json");
+            const response = await getDataFromUrl(`http://${host}:${port}/languages`, {}, "json");
             if(response.error) return await bot.replyText(data, "Algo deu errado!");
             let output = "Idiomas disponíveis:\n";
             for(const lang in response.text) {
