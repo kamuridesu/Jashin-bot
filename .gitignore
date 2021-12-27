@@ -7,7 +7,6 @@ trava
 *.log
 *.sqlite*
 *.opus
-*.py
 *.pickle
 __pycache__
-apis
+backup

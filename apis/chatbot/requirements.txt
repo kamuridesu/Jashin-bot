@@ -1,0 +1,3 @@
+chatterbot-corpus==1.2.0
+chatterbot
+spacy==2.1.9

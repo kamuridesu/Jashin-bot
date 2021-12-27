@@ -96,6 +96,7 @@ async function commandHandler(bot, cmd, data) {
 
         case "music":{
             // comment="envia uma música a partir de um link ou pequisa no youtube, ex: !music link_da_musica"
+            return await bot.replyText(data, "Desativado temporariamente!");
             bot.replyText(data, "Aguarde enquanto eu baixo a musica...");
             // retorna uma musica
             if(args.length < 1) {
@@ -136,6 +137,7 @@ async function commandHandler(bot, cmd, data) {
 
         case "video":{
             // comment="envia um vídeo a partir de um link ou pequisa no youtube, ex: !video link_do_video"
+            return await bot.replyText(data, "Desativado temporariamente!");
             if(args.length < 1) {
                 return await bot.replyText(data, "Por favor, escolha um video");
             } else {
