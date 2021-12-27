@@ -1,2 +1,2 @@
 #!/bin/bash
-cd /home/app/Jashin-bot && node index.js
+cd /home/app/Jashin-bot && git pull && node index.js

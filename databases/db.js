@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 // create our new instance of Sequelize with the database name 
 const database = new Sequelize({
     dialect: 'sqlite',
-    storage: './database.sqlite',
+    storage: './databases/database.sqlite',
     logging: false
 });
 

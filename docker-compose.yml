@@ -6,6 +6,7 @@ services:
     volumes:
       - "./logger:/home/app/Jashin-bot/logger/"
       - "./docker_conf:/home/app/Jashin-bot/common_conf/"
+      - "./databases:/home/app/Jashin-bot/databases/"
 
   chatbot:
     build: ./apis

@@ -6,11 +6,12 @@ if [ "$1" != "-yt" ]; then  # if you don't want to install yt-dlp, use the -yt f
 fi
 
 # check if current folder is not a git repository
+echo "Baixando bot..."
 if [ ! -d .git ]; then
-    echo "Baixando bot..."
-    git clone https://github.com/kamuridesu/Jashin-bot.git 2>&1>/dev/null
-    cd Jashin-bot
+    rm -rf Jashin-bot
 fi
+git clone https://github.com/kamuridesu/Jashin-bot.git 2>&1>/dev/null
+cd Jashin-bot
 
 # install node modules
 npm i

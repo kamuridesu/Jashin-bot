@@ -25,5 +25,5 @@ class MessagePreProcessor:
                     if(re.search(regex, message)):
                         message = ("".join(re.split(regex, message)))
                     message = message.strip().strip("@./;]!@#$%*()_+\"|\\<>?&^:`~{}[]")
-                    if message != "":
+                    if message != "" and "bot" not in message.lower():
                         self.pre_processed_messages.append(message)
