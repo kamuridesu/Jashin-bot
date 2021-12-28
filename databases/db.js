@@ -54,7 +54,7 @@ class Database {
             },
             slot_chances: { // set the type of the slot_chances column
                 type: Sequelize.INTEGER, // set the type of the slot_chances column
-                defaultValue: 50 // set the default value of the slot_chances column
+                defaultValue: 0 // set the default value of the slot_chances column
             },
         });
 

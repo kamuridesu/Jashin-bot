@@ -10,7 +10,9 @@ ADICIONE SUAS FUNÇÕES NO messageHandler APENAS!*/
 async function messageHandler(bot, message, data) {
     // TODO: Adicione suas funções aqui!
     const logger = new Log("./logger/messages.log");
-    logger.write("Mensagem: " + (message ? message : data.message_data.type) + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""));
+    if(message != "") {
+        logger.write(`Message: ${message}`);
+    }
     if(await getBomDiaMessage(bot, data, message)) {
         return;
     } else if(await getLinkMessage(bot, message, data)) {

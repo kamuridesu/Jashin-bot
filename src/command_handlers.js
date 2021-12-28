@@ -26,6 +26,7 @@ async function commandHandler(bot, cmd, data) {
     const args = cmd.split(" ").slice(1); // get the arguments (if any) from the command
     logger.write("Comando: " + command + (args.length < 1 ? '' : ", with args: " + args.join(" ")) + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""), 3);
     let error = "Algo deu errado!"; // default error message
+    const routes_object = JSON.parse(fs.readFileSync("./common_conf/routes.json"));
 
     switch (command) {
 
@@ -72,6 +73,8 @@ async function commandHandler(bot, cmd, data) {
             }
             const lang = args[0];
             const text = args.slice(1).join(" ");
+            const host = routes_object.chatbot.host;
+            const port = routes_object.chatbot.port;
             
             const response = await getDataFromUrl(`http://${host}:${port}/translate?text=` + text + "&target=" + lang, {}, "json");
             if(response.error) return await bot.replyText(data, "Algo deu errado! Verifique se o idioma é válido!");
@@ -81,6 +84,8 @@ async function commandHandler(bot, cmd, data) {
         case "idiomas":
         case "linguagens": {
             // comment="retorna uma lista de idiomas disponíveis"
+            const host = routes_object.chatbot.host;
+            const port = routes_object.chatbot.port;
             const response = await getDataFromUrl(`http://${host}:${port}/languages`, {}, "json");
             if(response.error) return await bot.replyText(data, "Algo deu errado!");
             let output = "Idiomas disponíveis:\n";
@@ -496,6 +501,13 @@ async function commandHandler(bot, cmd, data) {
 
         case "sorteio": {
             // comment="sorteia items, ex: sorteio cama mesa banho"
+            for(let arg of args) {
+                for(let item of args){
+                    if(item == arg) {
+                        return await bot.replyText(data, "Você não pode sortear o mesmo item! Depois dou um jeito nisso");
+                    }
+                }
+            }
             const items = quotationMarkParser(args.join(" "));
             if(!data.bot_data.is_group) {
                 error = "Você so pode sortear em grupo!";
@@ -510,16 +522,25 @@ async function commandHandler(bot, cmd, data) {
             } else {
                 let winners = {};
                 let winners_id = []
+                let sorted_ids = []
                 for(let i = 0; i < items.length; i++) {
                     while(true){
-                        let prize_id = items[Math.floor(Math.random() * items.length)];
-                        let winner = data.group_data.members[Math.floor(Math.random() * data.group_data.members.length)];
+                        console.log(winners);
+                        const sorted_id = Math.floor(Math.random() * items.length)
+                        let prize_id = undefined;
+                        if(!sorted_ids.includes(sorted_id)) {
+                            sorted_ids.push(sorted_id);
+                            prize_id = items[sorted_id];
+                        } else {
+                            continue;
+                        }
+                        const winner = data.group_data.members[Math.floor(Math.random() * data.group_data.members.length)];
                         if (winner.jid === bot.bot_number || winners_id.includes(winner.jid)) {
                             continue;
                         }
-                        if(winners[prize_id] === undefined) {
+                        if(winners[winner.jid] === undefined) {
                             winners_id.push(winner.jid);
-                            winners[prize_id] = winner;
+                            winners[winner.jid] = prize_id;
                             break;
                         }
                     }
