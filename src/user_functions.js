@@ -4,8 +4,6 @@ import pkg from "fluent-ffmpeg";
 const ffmpeg = pkg;
 import fs from "fs";
 import { exec } from "child_process";
-import axios from "axios";
-import { threadId } from 'worker_threads';
 
 /**
  * adds metadata to sticker pack
@@ -52,7 +50,8 @@ import { threadId } from 'worker_threads';
     const buffer = Buffer.concat([little_endian, last_buffer, buff_from_bytes, buff_from_json]);  // concat buffers to create exif data
 
     fs.writeFileSync(file_path, buffer, (error) => {
-        return path;
+        console.log(error);
+        return file_path;
     });
 }
 

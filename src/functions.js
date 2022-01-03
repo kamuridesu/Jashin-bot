@@ -221,11 +221,11 @@ function quotationMarkParser(text) {
     let in_quotes = false;
     let quote_start = 0;
     let quote_end = 0;
-    let quote_words = [];;
+    let quote_words = [];
     for(let i = 0; i < words.length; i++) {
         if(words[i].startsWith("\"")) {
             if(words[i].endsWith("\"")) {
-                const word = words[i].replace(/\"/g, "").trim();
+                const word = words[i].replace(/"/g, "").trim();
                 if (word != "") {
                     quote_words.push(word);
                 }
@@ -237,7 +237,7 @@ function quotationMarkParser(text) {
         } else if(words[i].endsWith("\"")) {
             in_quotes = false;
             quote_end = i;
-            let quote = words.slice(quote_start, quote_end + 1).join(" ").replace(/\"/g, "").trim();
+            let quote = words.slice(quote_start, quote_end + 1).join(" ").replace(/"/g, "").trim();
             if (quote != "") {
                 quote_words.push(quote);
             }

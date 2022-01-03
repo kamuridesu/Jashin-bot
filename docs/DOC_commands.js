@@ -27,7 +27,6 @@ function processCategories(command_lines) {
     let category_indexes = []
     let category_ends = []
     let last_category = undefined;
-    let n_of_tags = 0;
     for(let i = 0; i < command_lines.length; i++) {
         const category = command_lines[i].replace(/[^a-zA-Z0-9]/g, '').trim(); // removes all special chars
         if(command_lines[i].trim().includes("$%")) {  // se for uma categoria
@@ -35,7 +34,6 @@ function processCategories(command_lines) {
             if(category.includes(last_category)) {  // se for uma categoria repetida
                 category_ends.push(i);
             } else {  // se for uma categoria nova
-                n_of_tags += 1;
                 category_indexes.push({
                     name: category,
                     start: i + 1,
@@ -64,7 +62,7 @@ async function getCommandsByCategory() {
         let command_text = command_lines.slice(category_indexes[i].start, category_ends[i]).join("\n").split("case").slice(1).map((cmd) => {
             // Pega apenas o comando
             return cmd.split(":")[0].replace(/"/g, '').replace(/'/g, '');
-        });;
+        });
 
 
         text += `\n\n${category_indexes[i].name}: \n-|` + command_text.join("\n-|");  // gera a string
