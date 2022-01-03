@@ -48,8 +48,13 @@ class Bot {
                 fs.writeFileSync(config_auth_filename, JSON.stringify(authInfo));
             })
         }
+        try{
+            await this.conn.connect();
+        } catch (e) {
+            this.conn.clearAuthInfo();
+            fs.writeFileSync(config_auth_filename, "{}");
+        }
 
-        await this.conn.connect();
         this.bot_number = this.conn.user.jid; // pega o numero do bot
 
         this.conn.on('chat-update', async chatUpdate => {

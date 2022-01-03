@@ -281,8 +281,8 @@ async function commandHandler(bot, cmd, data) {
             return await bot.replyText(data, error);
         }
 
-        case "image_from_url":{
-            // comment="gera uma imagem a partir de uma url, ex: !image_from_url http://kamuridesu.tech/static/images/github_logo.png"
+        case "image":{
+            // comment="gera uma imagem a partir de uma url, ex: !image http://kamuridesu.tech/static/images/github_logo.png"
             // retorna uma imagem de uma url
             // baixa uma imagem a partir de uma url e baixa a imagem
             if (args.length < 1) {
@@ -570,8 +570,12 @@ async function commandHandler(bot, cmd, data) {
                 error = "Erro! Este comando só pode ser usado por admins!";
             } else {
                 const description = args.join(" ");
-                await bot.conn.groupUpdateDescription(data.group_data.id, description);  // muda a descrição do grupo
-                return await bot.replyText(data, "Atualizado com sucesso!");
+                try{
+                    await bot.conn.groupUpdateDescription(data.group_data.id, description);  // muda a descrição do grupo
+                    return await bot.replyText(data, "Atualizado com sucesso!");
+                } catch (e) {
+                    error = "Descrição muito longa!";
+                }
             }
             return await bot.replyText(data, error);
         }

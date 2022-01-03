@@ -11,7 +11,7 @@ async function messageHandler(bot, message, data) {
     // TODO: Adicione suas funções aqui!
     const logger = new Log("./logger/messages.log");
     if(message != "") {
-        logger.write(`Message: ${message}`);
+        logger.write(`Message: ${message}` + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""));
     }
     if(await getBomDiaMessage(bot, data, message)) {
         return;
