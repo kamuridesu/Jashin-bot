@@ -208,4 +208,47 @@ class Waifu {
 }
 
 
-export { createStickerFromMedia, convertGifToMp4, Waifu };
+class NekoApi {
+    constructor () {
+        this.api_base = "https://nekos.life/api/v2/";
+        this.endpoints = {
+            _8ball: "8ball",
+            cat: "cat",
+            endpoints: "endpoints",
+            fact: "fact",
+            img_nsfw: ['solog', 'feet', 'smallboobs', 'lewdkemo', 'woof', 'gasm', 'solo', 'goose', 'avatar', 'cum', 'slap', 'les', 'v3', 'erokemo', 'bj', 'pwankg', 'nekoapi_v3.1', 'ero', 'hololewd', 'gecg', 'fox_girl', 'tits', 'nsfw_neko_gif', 'eroyuri', 'holoero', 'pussy', 'Random_hentai_gif', 'lizard', 'yuri', 'keta', 'neko', 'hentai', 'feetg', 'eron', 'erok', 'kemonomimi', 'cum_jpg', 'nsfw_avatar', 'erofeet', 'blowjob', 'spank', 'kuni', 'classic', 'waifu', 'femdom', 'boobs', 'trap', 'lewd', 'pussy_jpg', 'anal', 'futanari', 'ngif', 'lewdk'],
+            img: ['8ball', 'smug', 'cuddle', 'meow', 'kiss', 'wallpaper', 'tickle', 'holo', 'poke', 'feed', 'pat', 'baka', 'hug'],
+            name: "name",
+            owoify: "owoify",
+            spoiler: "spoiler",
+            why: "why",
+        };
+    }
+
+    async owoify(text) {
+        const response = await getDataFromUrl(this.api_base + "owoify", {"Accept": "application/json", "text": text}, "json");
+        return response;
+    }
+
+    async getRandomH() {
+        const response = await getDataFromUrl(this.api_base + "/img/" + this.endpoints.img_nsfw[Math.floor(Math.random() * this.endpoints.img_nsfw.length)], {"Accept": "application/json"}, "json");
+        return response;
+    }
+
+    async getRandomImg() {
+        const response = await getDataFromUrl(this.api_base + "/img/" + this.endpoints.img[Math.floor(Math.random() * this.endpoints.img.length)], {"Accept": "application/json"}, "json");
+        return response;
+    }
+
+    async getHImage(category) {
+        if (!this.endpoints.img_nsfw.includes(category)) {
+            return {error: "Categoria não encontrada!"};
+        }
+        const response = await getDataFromUrl(this.api_base + "/img/" + category, {"Accept": "application/json"}, "json");
+        return response;
+    }
+
+}
+
+
+export { createStickerFromMedia, convertGifToMp4, Waifu, NekoApi };

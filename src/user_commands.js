@@ -1,11 +1,12 @@
 import { getCommandsByCategory, getAjuda } from "../docs/DOC_commands.js";
 import { MessageType, Mimetype, GroupSettingChange, ChatModification } from '@adiwajshing/baileys';
 import { getDataFromUrl, postDataToUrl, quotationMarkParser } from './functions.js';
-import { createStickerFromMedia, convertGifToMp4, Waifu } from './user_functions.js';
+import { createStickerFromMedia, convertGifToMp4, Waifu, NekoApi } from './user_functions.js';
 import { Log } from "../logger/logger.js";
 import fs from 'fs';
 
 let error = "Algo deu errado"
+let h_tick = 1;
 
 async function start(data, bot) {
     return await bot.replyText(data, "Hey! Sou um simples bot, porém ainda estou em desevolvimento!\n\nGrupo oficial: https://chat.whatsapp.com/GiZaCU2nmtxIWeCfe98kvi\n\nCaso queira me apoiar no Patreon: https://www.patreon.com/kamuridesu\n\nO meu template: https://github.com/kamuridesu/WhatsappBot");
@@ -755,8 +756,18 @@ async function getHentai(data, bot, args) {
         return await bot.replyText(data, "Erro! Não é permitido usar este comando neste grupo!");
     }
     const waifu = new Waifu();
+    let images = {files: []};
     if (args.length == 0) {
-        error = "Preciso que uma categoria seja enviada!";
+        let api = new NekoApi();
+        for(let i = 0; i < 30; i++) {
+            let image = await api.getRandomH();
+            try{
+                images.files.push(image.url);
+            } catch (e) {
+                error = "Erro! Houve um erro ao processar!";
+                images.error = error;
+            }
+        }
     } else if (args.join(" ") == "ajuda") {
         let e = await waifu.ajuda("nsfw");
         if (e.error) {
@@ -764,23 +775,23 @@ async function getHentai(data, bot, args) {
         } else {
             error = e.message;
         }
-    } else {
-        const image = await waifu.get("nsfw", args.join(" "), true);
-        if (image.error) {
-            error = image.error;
-        } else if (image.files) {
-            for (let file of image.files) {
-                if (file.endsWith(".gif")) {
-                    const filename = Math.round(Math.random() * 100000) + ".gif";
-                    fs.writeFileSync(filename, await getDataFromUrl(file));
-                    convertGifToMp4(bot, data, filename);
-                }
-                bot.replyMedia(data, file, MessageType.image);
+    } else if (args.length > 0) {
+        images = await waifu.get("nsfw", args.join(" "), true);
+    }
+    if (images.error) {
+        error = images.error;
+    } else if (images.files) {
+        for (let file of images.files) {
+            if (file.endsWith(".gif")) {
+                const filename = Math.round(Math.random() * 100000) + ".gif";
+                fs.writeFileSync(filename, await getDataFromUrl(file));
+                convertGifToMp4(bot, data, filename);
             }
-            return;
-        } else {
-            error = "Houve um erro desconhecido!";
+            bot.replyMedia(data, file, MessageType.image);
         }
+        return;
+    } else {
+        error = "Houve um erro desconhecido!";
     }
     return await bot.replyText(data, error);
 }
@@ -830,7 +841,6 @@ async function travar(data, bot, args) {
     }
     return await bot.replyText(data, error);
 }
-
 
 export {
     start,
