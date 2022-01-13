@@ -3,6 +3,8 @@ from chatbot.bot import Bot
 import pathlib
 import json
 from translation.translate import translate, getLanguages
+import threading
+import random
 
 
 def getAbosulteParent(path):
@@ -10,20 +12,32 @@ def getAbosulteParent(path):
 
 
 app = Flask(__name__)
-bot = Bot()
-bot.train_from_file((str(getAbosulteParent(getAbosulteParent((__file__))))+ "/logger/messages.log"))
+processes = {}
+thread_id = random.randint(0, 100000)
+processes[thread_id] = Bot((str(getAbosulteParent(getAbosulteParent((__file__))))+ "/logger/messages.log"))
+bot = processes[thread_id]
 
 HOST = "0.0.0.0"
 PORT = 8080
+RUNNING = False
 
 with open(str(getAbosulteParent(getAbosulteParent((__file__))))+ "/common_conf/routes.json", "r") as f:
     routes = json.loads(f.read())
     HOST = routes['chatbot']["host"]
     PORT = routes['chatbot']["port"]
 
+@app.route("/")
+def index():
+    processes[thread_id].run()
+    global RUNNING
+    RUNNING = True
+    return redirect("/chatbot")
 
 @app.route('/chatbot', methods=['GET'])
 def chatbot():
+    global RUNNING
+    if not RUNNING:
+        return redirect("/")
     if request.args.get('text'):
         response = bot.get_response(request.args.get('text'))
         return jsonify({"status": "OK", "text": response})

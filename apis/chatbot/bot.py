@@ -2,13 +2,12 @@ from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 from chatterbot.trainers import ListTrainer
 from .messages_processor import MessagePreProcessor
+import threading
 
 
-class Bot:
-    def __init__(self):
-        self.bot = ChatBot('Bot', read_only=True)
-        self.trainer = ChatterBotCorpusTrainer(self.bot)
-        self.trainer.train('chatterbot.corpus.portuguese')
+class Bot(threading.Thread):
+    def __init__(self, file_path):
+            self.file_path = file_path
     
     def train(self, messages: list):
         self.trainer = ListTrainer(self.bot)
@@ -22,6 +21,13 @@ class Bot:
 
     def train_from_file(self, path):
         self.train(MessagePreProcessor(path).pre_processed_messages)
+
+    def run(self):
+        self.bot = ChatBot('Bot', read_only=True)
+        self.trainer = ChatterBotCorpusTrainer(self.bot)
+        self.trainer.train('chatterbot.corpus.portuguese')
+        self.train_from_file(self.file_path)
+
 
 
 # bot = Bot()
