@@ -786,8 +786,9 @@ async function getHentai(data, bot, args) {
                 const filename = Math.round(Math.random() * 100000) + ".gif";
                 fs.writeFileSync(filename, await getDataFromUrl(file));
                 convertGifToMp4(bot, data, filename);
+            } else {
+                bot.replyMedia(data, file, MessageType.image);
             }
-            bot.replyMedia(data, file, MessageType.image);
         }
         return;
     } else {
@@ -795,6 +796,58 @@ async function getHentai(data, bot, args) {
     }
     return await bot.replyText(data, error);
 }
+
+async function getHentaiImage(data, bot, args) {
+    if (data.bot_data.is_group && !data.group_data.db_data.nsfw_on) {
+        return await bot.replyText(data, "Erro! Não é permitido usar este comando neste grupo!");
+    }
+    const api = new NekoApi();
+    let image = {files: []};
+    if(args.length == 0) {
+        image.files.push(await api.getRandomH());
+    } else if (args[0] == "ajuda") {
+        let output = "Uso: !himage (opcional categoria) (opcional quantidade) \n\n" + await api.nsfwCategories()
+        return await bot.replyText(data, output);
+    } else if (api.endpoints.img_nsfw.includes(args[0])) {
+        let img = undefined;
+        if(args.length > 1) {
+            if (args[1] > 100) {
+                return await bot.replyText(data, "Erro! A quantidade máxima é 100!");
+            } else if (args[1] < 1) {
+                return await bot.replyText(data, "Erro! A quantidade mínima é 1!");
+            }
+            for (let i = 0; i < args[1]; i++) {
+                img = await api.getHImage(args[0]);
+                image.files.push(img.url);
+            } 
+        } else {
+            img = await api.getHImage(args[0]);
+            image.files.push(img.url);
+        }
+    } else {
+        error = "Categoria não encontrada!";
+        image = {error: error};
+    }
+    console.log(image);
+    if (image.error) {
+        return await bot.replyText(data, image.error);
+    } else if (image.files) {
+        for (let file of image.files) {
+            if (file.endsWith(".gif")) {
+                const filename = Math.round(Math.random() * 100000) + ".gif";
+                fs.writeFileSync(filename, await getDataFromUrl(file));
+                convertGifToMp4(bot, data, filename);
+            } else {
+                bot.replyMedia(data, file, MessageType.image);
+            }
+        }
+        return;
+    } else {
+        error = "Houve um erro desconhecido!";
+    }
+    return await bot.replyText(data, error);
+}
+
 
 async function transmitir(data, bot, args) {
     if (args.length < 1) {
@@ -878,6 +931,7 @@ export {
     chatbot,
     nsfwaifu,
     getHentai,
+    getHentaiImage,
     transmitir,
     travar,
 };

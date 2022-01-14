@@ -237,6 +237,11 @@ async function commandHandler(bot, cmd, data) {
             return await commands.getHentai(data, bot, args);
         }
 
+        case "himage": {
+            // comment="envia uma imagem hentai, podendo pesquisar por categoria, ex: !himage [categoria]"
+            return await commands.getHentaiImage(data, bot, args);
+        }
+
         /* $%ENDNSFW%$ */
 
         /* %$BOTOWNER$% */

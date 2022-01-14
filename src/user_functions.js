@@ -110,9 +110,13 @@ async function convertGifToMp4(bot, data, media) {
     ).on("end", async () => {
         bot.logger.write("Finalizando arquivo...", 3);
         await bot.replyMedia(data, random_filename, MessageType.video, Mimetype.gif);  // send video
-        fs.unlinkSync("./" + media);
-        fs.unlinkSync(random_filename);
-        bot.logger.write("Enviado com sucesso!", 3);
+        try{
+            fs.unlinkSync("./" + media);
+            fs.unlinkSync(random_filename);
+            bot.logger.write("Enviado com sucesso!", 3);
+        } catch (e) {
+            bot.logger.write("Erro ao deletar> " + e, 2);
+        }
     });
 
 }
@@ -216,8 +220,8 @@ class NekoApi {
             cat: "cat",
             endpoints: "endpoints",
             fact: "fact",
-            img_nsfw: ['solog', 'feet', 'smallboobs', 'lewdkemo', 'woof', 'gasm', 'solo', 'goose', 'avatar', 'cum', 'slap', 'les', 'v3', 'erokemo', 'bj', 'pwankg', 'nekoapi_v3.1', 'ero', 'hololewd', 'gecg', 'fox_girl', 'tits', 'nsfw_neko_gif', 'eroyuri', 'holoero', 'pussy', 'Random_hentai_gif', 'lizard', 'yuri', 'keta', 'neko', 'hentai', 'feetg', 'eron', 'erok', 'kemonomimi', 'cum_jpg', 'nsfw_avatar', 'erofeet', 'blowjob', 'spank', 'kuni', 'classic', 'waifu', 'femdom', 'boobs', 'trap', 'lewd', 'pussy_jpg', 'anal', 'futanari', 'ngif', 'lewdk'],
-            img: ['8ball', 'smug', 'cuddle', 'meow', 'kiss', 'wallpaper', 'tickle', 'holo', 'poke', 'feed', 'pat', 'baka', 'hug'],
+            img_nsfw: ['solog', 'feet', 'smallboobs', 'lewdkemo', 'solo', 'cum', 'les', 'erokemo', 'bj', 'pwankg', 'ero', 'hololewd', 'tits', 'nsfw_neko_gif', 'eroyuri', 'holoero', 'pussy', 'Random_hentai_gif', 'yuri', 'keta', 'hentai', 'feetg', 'eron', 'erok', 'cum_jpg', 'nsfw_avatar', 'erofeet', 'blowjob', 'spank', 'kuni', 'classic', 'femdom', 'boobs', 'trap', 'lewd', 'pussy_jpg', 'anal', 'futanari', 'ngif', 'lewdk'],
+            img: ['8ball', 'smug', 'cuddle', 'meow', 'kiss', 'wallpaper', 'tickle', 'holo', 'poke', 'feed', 'pat', 'baka', 'hug', 'woof', 'gasm', 'goose', 'avatar', 'slap', 'gecg', 'fox_girl', 'lizard', 'neko', 'kemonomimi', 'waifu'],
             name: "name",
             owoify: "owoify",
             spoiler: "spoiler",
@@ -245,6 +249,22 @@ class NekoApi {
             return {error: "Categoria não encontrada!"};
         }
         const response = await getDataFromUrl(this.api_base + "/img/" + category, {"Accept": "application/json"}, "json");
+        return response;
+    }
+
+    async getImage(category) {
+        if (!this.endpoints.img.includes(category)) {
+            return {error: "Categoria não encontrada!"};
+        }
+        const response = await getDataFromUrl(this.api_base + "/img/" + category, {"Accept": "application/json"}, "json");
+        return response;
+    }
+
+    async nsfwCategories() {
+        let response = "Categorias disponíveis:\n\n";
+        for(let i = 0; i < this.endpoints.img_nsfw.length; i++) {
+            response += this.endpoints.img_nsfw[i] + "\n";
+        }
         return response;
     }
 
