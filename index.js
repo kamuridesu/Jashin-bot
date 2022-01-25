@@ -22,7 +22,8 @@ class BotData {
 
 // classe Bot, onde as informações vão ser armazenadas e as requisições processadas.
 class Bot {
-    constructor() {
+    constructor(rabbit) {
+        rabbit = rabbit ? rabbit : undefined;
         // carrega as configurações do bot
         const owner_data = JSON.parse(fs.readFileSync("./config/config.admin.json"));
         this.conn = undefined;
@@ -254,7 +255,7 @@ class Bot {
             if (fs.existsSync(media)) { // se o arquivo existir
                 // verifica se o arquivo existe localmente, se sim, o envia
                 media = fs.readFileSync(media); // le o arquivo
-            } else { // se não existir
+            } else if (typeof (media) == 'string') { // se não existir
                 // se o arquivo não existir localmente, tenta fazer o download.
                 media = await getDataFromUrl(media); // tenta fazer o download
                 if(media.error) { // se não conseguir fazer o download
@@ -339,5 +340,5 @@ class Bot {
 }
 
 
-let x = new Bot();  // cria um novo bot
+let x = new Bot(process.argv.includes("rabbit"));  // cria um novo bot
 x.connectToWa().catch(err => console.log("unexpected error: " + err)); // conecta ao whatsapp e inicia o bot.

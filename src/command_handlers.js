@@ -112,6 +112,11 @@ async function commandHandler(bot, cmd, data) {
             return await commands.sfwaifu(data, bot, args);
         }
 
+        case "thumbnail": {
+            // comment="Baixa e envia uma thumbnail de um video no youtube, ex: !thumbnail https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            return await commands.thumbnail(data, bot, args);
+        }
+
 
         /* %$ENDMIDIA$% */
 

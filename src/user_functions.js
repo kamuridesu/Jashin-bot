@@ -220,7 +220,7 @@ class NekoApi {
             cat: "cat",
             endpoints: "endpoints",
             fact: "fact",
-            img_nsfw: ['solog', 'feet', 'smallboobs', 'lewdkemo', 'solo', 'cum', 'les', 'erokemo', 'bj', 'pwankg', 'ero', 'hololewd', 'tits', 'nsfw_neko_gif', 'eroyuri', 'holoero', 'pussy', 'Random_hentai_gif', 'yuri', 'keta', 'hentai', 'feetg', 'eron', 'erok', 'cum_jpg', 'nsfw_avatar', 'erofeet', 'blowjob', 'spank', 'kuni', 'classic', 'femdom', 'boobs', 'trap', 'lewd', 'pussy_jpg', 'anal', 'futanari', 'ngif', 'lewdk'],
+            img_nsfw: ['solog', 'feet', 'lewdkemo', 'solo', 'cum', 'les', 'erokemo', 'bj', 'pwankg', 'ero', 'hololewd', 'tits', 'nsfw_neko_gif', 'eroyuri', 'holoero', 'pussy', 'Random_hentai_gif', 'yuri', 'keta', 'hentai', 'feetg', 'eron', 'erok', 'cum_jpg', 'nsfw_avatar', 'erofeet', 'blowjob', 'spank', 'kuni', 'classic', 'femdom', 'boobs', 'trap', 'lewd', 'pussy_jpg', 'anal', 'futanari', 'ngif', 'lewdk'],
             img: ['8ball', 'smug', 'cuddle', 'meow', 'kiss', 'wallpaper', 'tickle', 'holo', 'poke', 'feed', 'pat', 'baka', 'hug', 'woof', 'gasm', 'goose', 'avatar', 'slap', 'gecg', 'fox_girl', 'lizard', 'neko', 'kemonomimi', 'waifu'],
             name: "name",
             owoify: "owoify",
@@ -264,6 +264,14 @@ class NekoApi {
         let response = "Categorias disponíveis:\n\n";
         for(let i = 0; i < this.endpoints.img_nsfw.length; i++) {
             response += this.endpoints.img_nsfw[i] + "\n";
+        }
+        return response;
+    }
+
+    async sfwCategories() {
+        let response = "Categorias disponíveis:\n\n";
+        for(let i = 0; i < this.endpoints.img.length; i++) {
+            response += this.endpoints.img[i] + "\n";
         }
         return response;
     }

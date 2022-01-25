@@ -6,9 +6,9 @@ def translate(text, target_language):
     translator = Translator()
     try:
         translated_text = translator.translate(text, dest=target_language)
+        return {"status": "OK", "text": translated_text.text}
     except Exception as e:
-        return e.with_traceback()
-    return translated_text.text
+        return {"status": "erro", "text": "verifique se a linguagem existe!"}
 
 
 def getLanguages():

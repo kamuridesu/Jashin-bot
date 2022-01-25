@@ -1,5 +1,6 @@
 import { Log } from "../logger/logger.js";
 import { getDataFromUrl } from "./functions.js";
+import Rabbit from "./rabbit_iface.js"
 import fs from "fs";
 
 /* USE ESTE ARQUIVO PARA MANIPULAR MENSSAGENS DE TEXTO, NÃO COMANDOS!

@@ -49,9 +49,9 @@ def translate_text():
     print(request)
     if request.args.get('text') and request.args.get('target'):
         response = translate(request.args.get('text'), request.args.get('target'))
-        return jsonify({"status": "OK", "text": response})
+        return jsonify(response)
     else:
-        return jsonify({"status": "error", "response": "No parameter"})
+        return jsonify({"status": "error", "text": "No parameter"})
 
 
 @app.route("/languages", methods=['GET'])
