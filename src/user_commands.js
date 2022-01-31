@@ -60,57 +60,22 @@ async function idiomas(data, bot, routes_object) {
 }
 
 // midia
-async function music(data, bot, args) {
-    return await bot.replyText(data, "Desativado temporariamente!");
-    // bot.replyText(data, "Aguarde enquanto eu baixo a musica...");
-    // // retorna uma musica
-    // if (args.length < 1) {
-    //     return await bot.replyText(data, "Por favor, escolha uma música!");
-    // } else {
-    //     let argument = args.join(" "); // get the argument
-    //     // regex para ver se o argument é um link
-    //     const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-    //     if (!regex.test(argument)) { // se o argumento for um link
-    //         argument = "\"ytsearch:" + argument.replace(/\"/g, '') + "\"";
-    //     } else if (argument.includes("&&")) {
-    //         argument = argument.split("&&")[0];
-    //     }
-    //     let filename = Math.round(Math.random() * 100000) + ""; // cria um nome aleatório para o arquivo
-    //     // const query = "yt-dlp --no-check-certificates -x -f 'ba' --audio-format mp3 " + " -o " + filename + " " + argument; // query para baixar a música
-    //     const query = `yt-dlp -f 'ba' -x --audio-format mp3 ${argument} -o '${filename}.%(ext)s'`
-    //     logger.write(query, 3); // loga a query
-    //     filename = filename + ".mp3"
-    //     exec(query, async (error) => { // executa a query
-    //         if (error) { // se houver erro
-    //             logger.write("erro> " + error, 2); // loga o erro
-    //             logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
-    //             fs.unlinkSync(filename); // apaga o arquivo
-    //             return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
-    //         } else { // se não houver erro
-    //             await bot.replyMedia(data, filename, MessageType.audio); // envia a música
-    //             if (fs.existsSync(filename)) { // se o arquivo existir
-    //                 logger.write("Apagando arquivo " + filename); // loga a mensagem
-    //                 fs.unlinkSync(filename);    // apaga o arquivo
-    //             }
-    //             return;
-    //         }
-    //     });
-
-    // }
-    // return;
-}
-
-async function video(data, bot, args) {
+async function download(data, bot, args, video_audio) {
     // return await bot.replyText(data, "Desativado temporariamente!");
+    let video_or_audio = video_audio ? "audio" : "video"
     if (args.length < 1) {
-        return await bot.replyText(data, "Por favor, escolha um vídeo!");
+        return await bot.replyText(data, "Por favor, escolha um " + video_or_audio + " para baixar!");
     }
     let youtube = new KamTube();
     let argument = args.join(" "); // get the argument
     // regex para ver se o argument é um link   
-    const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+    const regex = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi;
     if (!regex.test(argument)) { // se o argumento não for um link
-        argument = (await youtube.search(argument))[0].videoId; // busca o vídeo
+        try{
+            argument = (await youtube.search(argument))[0].videoId; // busca o vídeo
+        } catch(e){
+            return await bot.replyText(data, "Houve um errro ao processar!");
+        }
     } else {
         // replace youtu.be or youtube.com for ytb.trom.tf
         if (argument.includes("youtu.be")) {
@@ -126,52 +91,24 @@ async function video(data, bot, args) {
             argument = argument.replace("youtube.com/watch?=");
         }
     }
-    await bot.replyText(data, "Aguarde enquanto eu baixo o vídeo...");
-    let video = await youtube.download(argument);
+    await bot.replyText(data, "Aguarde enquanto eu baixo...");
+    let video = null;
+    try {
+        video = (await youtube.download(argument, video_audio));
+    } catch (e) {
+        return await bot.replyText(data, "Houve um erro ao baixar");
+    }
     console.log("Video downloaded!");
     if (video != null) {
-        await bot.replyMedia(data, video, MessageType.video, Mimetype.mp4);
+        if (video_audio == "360") {
+            await bot.replyMedia(data, video, MessageType.video, Mimetype.mp4);
+        } else {
+            await bot.replyMedia(data, video, MessageType.audio, Mimetype.mp4Audio);
+        }
         return; 
     } else {
         return await bot.replyText(data, "Houve um erro ao processar!");
     }
-
-    // if (args.length < 1) {
-    //     return await bot.replyText(data, "Por favor, escolha um video");
-    // } else {
-    //     bot.replyText(data, "Aguarde enquanto eu baixo o video...");
-    //     let argument = args.join(" "); // get the argument
-    //     // regex para ver se o argument é um link
-    //     const regex = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-    //     if (!regex.test(argument)) { // se o argumento for um link
-    //         argument = "\"ytsearch:" + argument.replace(/\"/g, '') + "\"";
-    //     }
-    //     let filename = Math.round(Math.random() * 100000); // cria um nome aleatório para o arquivo
-    //     const query = "yt-dlp --no-check-certificates -f mp4 --max-filesize 100m -S 'res:360' " + " -o " + filename + " " + argument; // query para baixar a música
-    //     filename = "./" + filename;
-    //     logger.write(query, 3); // loga a query
-    //     exec(query, async (error) => { // executa a query 
-    //         if (error) { // se houver erro
-    //             logger.write("erro> " + error, 2); // loga o erro
-    //             logger.write("Apagando arquivo " + filename, 2); // loga a mensagem
-    //             if (fs.existsSync(filename + ".part")) { // se o arquivo existir
-    //                 fs.unlinkSync(filename + ".part"); // apaga o arquivo
-    //             }
-    //             if (fs.existsSync(filename)) {
-    //                 fs.unlinkSync(filename);
-    //             }
-    //             return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
-    //         } else { // se não houver erro
-    //             await bot.replyMedia(data, filename, MessageType.video, Mimetype.mp4); // envia a música
-    //             if (fs.existsSync(filename)) { // se o arquivo existir
-    //                 logger.write("Apagando arquivo " + filename); // loga a mensagem
-    //                 fs.unlinkSync(filename);    // apaga o arquivo
-    //             }
-    //             return;
-    //         }
-    //     });
-    // }
-    // return;
 }
 
 async function voz(data, bot, args) {
@@ -364,7 +301,7 @@ async function thumbnail(data, bot, args) {
         error = "Error! Preciso que uma url seja passada!";
     } else if (args.length > 1) {
         error = "Error! Muitos argumentos!";
-    } else if (/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi.test(args.join(" "))) {
+    } else if (/[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi.test(args.join(" "))) {
         let youtube = new KamTube();
         let argument = args.join(" ");
         if (argument.includes("youtu.be")) {
@@ -643,6 +580,7 @@ async function promover(data, bot, args) {
     }
     if (user_id !== undefined) {
         user_id = user_id.split("@")[1] + "@s.whatsapp.net";  // transforma o id do usuário em um formato válido
+        if (!/^(\d{12})@s.whatsapp.net/g.test(user_id)) return await bot.replyText(data, "Erro! Usuário inválido!");
         if (data.group_data.admins_jid.includes(user_id)) {
             error = "Erro! Usuário já é admin!";
         } else {
@@ -973,8 +911,7 @@ export {
     bug,
     traduzir,
     idiomas,
-    music, 
-    video, 
+    download, 
     voz, 
     vozCat, 
     vozList, 

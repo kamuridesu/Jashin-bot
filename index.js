@@ -22,8 +22,7 @@ class BotData {
 
 // classe Bot, onde as informações vão ser armazenadas e as requisições processadas.
 class Bot {
-    constructor(rabbit) {
-        rabbit = rabbit ? rabbit : undefined;
+    constructor() {
         // carrega as configurações do bot
         const owner_data = JSON.parse(fs.readFileSync("./config/config.admin.json"));
         this.conn = undefined;

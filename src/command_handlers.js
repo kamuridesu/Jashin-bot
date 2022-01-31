@@ -67,12 +67,12 @@ async function commandHandler(bot, cmd, data) {
 
         case "music": {
             // comment="envia uma música a partir de um link ou pequisa no youtube, ex: !music link_da_musica"
-            return await commands.music(data, bot, args);
+            return await commands.download(data, bot, args, "audio");
         }
 
         case "video": {
             // comment="envia um vídeo a partir de um link ou pequisa no youtube, ex: !video link_do_video"
-            return await commands.video(data, bot, args);
+            return await commands.download(data, bot, args, "360");
         }
 
         case "vozes":

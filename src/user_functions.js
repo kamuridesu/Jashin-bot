@@ -278,5 +278,4 @@ class NekoApi {
 
 }
 
-
 export { createStickerFromMedia, convertGifToMp4, Waifu, NekoApi };

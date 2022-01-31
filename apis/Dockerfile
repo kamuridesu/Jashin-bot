@@ -15,6 +15,7 @@ COPY ./chatbot/requirements.txt .
 RUN pip3.8 install -r requirements.txt
 COPY ./translation/requirements.txt .
 RUN pip3.8 install -r requirements.txt
+RUN pip3.8 install Flask
 WORKDIR /home/app
 COPY . .
-CMD ["python3.8", "app.py"]
+CMD ["python3.8", "run.py"]
