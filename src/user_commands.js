@@ -101,9 +101,9 @@ async function download(data, bot, args, video_audio) {
     console.log("Video downloaded!");
     if (video != null) {
         if (video_audio != "audio") {
-            await bot.replyMedia(data, video, MessageType.video, Mimetype.mp4);
+            await bot.replyMedia(data, video.data, MessageType.video, Mimetype.mp4);
         } else {
-            await bot.replyMedia(data, video, MessageType.audio, Mimetype.mp4Audio);
+            await bot.replyMedia(data, video.data, MessageType.audio, Mimetype.mp4Audio);
         }
         return; 
     } else {
