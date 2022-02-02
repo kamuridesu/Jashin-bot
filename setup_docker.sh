@@ -7,7 +7,7 @@ fi
 
 # check if current folder is not a git repository
 echo "Baixando bot..."
-if [ ! -d .git ]; then
+if [ -d .git ]; then
     cd ..
     rm -rf Jashin-bot
 fi

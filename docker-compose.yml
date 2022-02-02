@@ -4,9 +4,9 @@ services:
     build: .
     restart: always
     volumes:
-      - "./logger:/home/app/Jashin-bot/logger/"
-      - "./docker_conf:/home/app/Jashin-bot/common_conf/"
-      - "./databases:/home/app/Jashin-bot/databases/"
+      - "./logger:/home/Jashin-bot/logger/"
+      - "./docker_conf:/home/Jashin-bot/common_conf/"
+      - "./databases:/home/Jashin-bot/databases/"
 
   chatbot:
     build: ./apis

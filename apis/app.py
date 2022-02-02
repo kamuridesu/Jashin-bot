@@ -24,6 +24,8 @@ RUNNING = False
 with open(str(getAbosulteParent(getAbosulteParent((__file__))))+ "/common_conf/routes.json", "r") as f:
     routes = json.loads(f.read())
     HOST = routes['chatbot']["host"]
+    if HOST == "chatbot":
+        HOST = "0.0.0.0"
     PORT = routes['chatbot']["port"]
 
 @app.route("/")
