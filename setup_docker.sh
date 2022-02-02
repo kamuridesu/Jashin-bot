@@ -17,4 +17,3 @@ cd Jashin-bot
 
 # install node modules
 npm i
-echo $(pwd)
