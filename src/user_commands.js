@@ -91,6 +91,7 @@ async function download(data, bot, args, video_audio) {
             argument = argument.replace("youtube.com/watch?=");
         }
     }
+    console.log(argument);
     await bot.replyText(data, "Aguarde enquanto eu baixo...");
     let video = null;
     try {
