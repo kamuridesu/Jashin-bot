@@ -187,14 +187,17 @@ async function audio(data, bot, args) {
         if (response.uuid) { // se a resposta tiver uuid
             const uuid = response.uuid; // pega o uuid
             let media = { "error": "Não foi possível baixar o audio!", finished_at: null }; // cria um objeto para armazenar o audio
+            let count = 0; // contador
             do {
+                if (count > 100) return await bot.replyText(data, "Houve um erro ao processar!"); // se o contador for maior que 100
+                console.log("https://api.uberduck.ai/speak-status?uuid=" + uuid);
                 media = await getDataFromUrl("https://api.uberduck.ai/speak-status?uuid=" + uuid, { "Authorization": "Basic " + keys }, "json"); // requisita a API
                 if (media.error) {
                     return await bot.replyText(data, "Houve um erro ao processar!"); // retorna a mensagem de erro
                 }
                 // espera 1 segundo
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            } while (media.finished_at == null);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            } while (media.path == null);
             if (media.failed_at == null) { // se não houver erro
                 return await bot.replyMedia(data, media.path, MessageType.audio, Mimetype.mp4Audio); // retorna a mensagem de sucesso
             }
