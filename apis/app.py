@@ -30,9 +30,9 @@ with open(str(getAbosulteParent(getAbosulteParent((__file__))))+ "/common_conf/r
 
 @app.route("/")
 def index():
-    processes[thread_id].run()
     global RUNNING
     RUNNING = True
+    processes[thread_id].run()
     return redirect("/chatbot")
 
 @app.route('/chatbot', methods=['GET'])
