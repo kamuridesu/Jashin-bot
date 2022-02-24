@@ -27,3 +27,4 @@ class MessagePreProcessor:
                     message = message.strip().strip("@./;]!@#$%*()_+\"|\\<>?&^:`~{}[]")
                     if message != "" and "bot" not in message.lower():
                         self.pre_processed_messages.append(message)
+        self.pre_processed_messages = list(set(self.pre_processed_messages))

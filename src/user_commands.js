@@ -96,6 +96,7 @@ async function download(data, bot, args, video_audio) {
     try {
         video = (await youtube.download(argument, video_audio));
     } catch (e) {
+        console.log(e);
         return await bot.replyText(data, "Houve um erro ao baixar");
     }
     console.log("Video downloaded!");
