@@ -76,20 +76,6 @@ async function download(data, bot, args, video_audio) {
         } catch(e){
             return await bot.replyText(data, "Houve um errro ao processar!");
         }
-    } else {
-        // replace youtu.be or youtube.com for ytb.trom.tf
-        if (argument.includes("youtu.be")) {
-            argument = argument.split("/");
-            let id = 0;
-            if ("shorts" in argument) {
-                id = argument[4];
-            } else {
-                id = argument[3];
-            }
-            argument = id;
-        } else if (argument.includes("youtube.com")) {
-            argument = argument.replace("youtube.com/watch?=");
-        }
     }
     await bot.replyText(data, "Aguarde enquanto eu baixo...");
     let video = null;
