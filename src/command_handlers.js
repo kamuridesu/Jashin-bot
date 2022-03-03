@@ -43,6 +43,7 @@ async function commandHandler(bot, cmd, data) {
         case "test":
             // comment="retorna um teste"
             return await bot.replyText(data, "testando 1 2 3");
+            // return await bot.replyMedia(data, "./cat.gif", "video", "image/gif")
 
         case "bug": {
             // comment="reporta um bug para o dono, ex: !bug detalhes do bug"

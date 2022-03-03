@@ -1,6 +1,7 @@
 import { getCommandsByCategory, getAjuda } from "../docs/DOC_commands.js";
-import { MessageType, Mimetype, GroupSettingChange, ChatModification } from '@adiwajshing/baileys';
-import { getDataFromUrl, postDataToUrl, quotationMarkParser } from './functions.js';
+import pkg from "@adiwajshing/baileys"
+const { ChatModification } = pkg;
+import { getDataFromUrl, postDataToUrl, quotationMarkParser, downloadAndSaveMediaMessage } from './functions.js';
 import { createStickerFromMedia, convertGifToMp4, Waifu, NekoApi } from './user_functions.js';
 import { Log } from "../logger/logger.js";
 import KamTube from 'kamtube';
@@ -88,9 +89,9 @@ async function download(data, bot, args, video_audio) {
     console.log("Video downloaded!");
     if (video != null) {
         if (video_audio != "audio") {
-            await bot.replyMedia(data, video.data, MessageType.video, Mimetype.mp4);
+            await bot.replyMedia(data, video.data, "video", "video/mp4");
         } else {
-            await bot.replyMedia(data, video.data, MessageType.audio, Mimetype.mp4Audio);
+            await bot.replyMedia(data, video.data, "audio", "audio/mp4");
         }
         return; 
     } else {
@@ -186,7 +187,7 @@ async function audio(data, bot, args) {
                 await new Promise(resolve => setTimeout(resolve, 2000));
             } while (media.path == null);
             if (media.failed_at == null) { // se não houver erro
-                return await bot.replyMedia(data, media.path, MessageType.audio, Mimetype.mp4Audio); // retorna a mensagem de sucesso
+                return await bot.replyMedia(data, media.path, "audio", "audio/mp3"); // retorna a mensagem de sucesso
             }
         } else {
             error = "Houve um erro ao processar! Verifique se o nome da voz é válido com o comando !voz";
@@ -203,7 +204,7 @@ async function downloadImage(data, bot, args) {
     } else if (args.length > 1) {
         error = "Error! Muitos argumentos!";
     } else {
-        return await bot.replyMedia(data, args[0], MessageType.image, Mimetype.png);
+        return await bot.replyMedia(data, args[0], "image", "image/png");
     }
     return await bot.replyText(data, error);
 }
@@ -215,11 +216,12 @@ async function perfil(data, bot, args) {
         let mention = data.message_data.context.message.extendedTextMessage.contextInfo.mentionedJid[0]
         let profile_pic = "./etc/default_profile.png";
         try {
-            profile_pic = await bot.conn.getProfilePicture(mention);
+            profile_pic = await bot.conn.profilePictureUrl(mention, "image");
+            profile_pic = await getDataFromUrl(profile_pic);
         } catch (e) {
             //
         }
-        return bot.replyMedia(data, profile_pic, MessageType.image, Mimetype.png);
+        return bot.replyMedia(data, profile_pic, "image", "image/png");
     }
     return bot.replyText(data, error);
 }
@@ -235,7 +237,8 @@ async function sfwaifu(data, bot) {
             fs.writeFileSync(filename, await getDataFromUrl(image.url));
             return await convertGifToMp4(bot, data, filename);
         }
-        return await bot.replyMedia(data, image.url, MessageType.image);
+        console.log("Sending file...");
+        return await bot.replyMedia(data, image.url, "image");
     }
 }
 
@@ -280,7 +283,7 @@ async function createSticker(data, bot, args) {
         error = "Não suportado!";
     }
     if (media !== undefined) {
-        media = await bot.conn.downloadAndSaveMediaMessage(media, "file" + Math.round(Math.random() * 10000));  // baixa a midia
+        media = await downloadAndSaveMediaMessage(data.message_data, media, "file" + Math.round(Math.random() * 10000));  // baixa a midia
         return await createStickerFromMedia(bot, data, media, packname, author);  // cria um sticker a partir da midia
     }
     return await bot.replyText(data, error);
@@ -309,7 +312,7 @@ async function thumbnail(data, bot, args) {
         try{
             let thumbnail = await youtube.getThumbnail(argument);
             console.log(thumbnail)
-            return await bot.replyMedia(data, thumbnail, MessageType.image);
+            return await bot.replyMedia(data, thumbnail, "image");
         } catch (e) {
             error = "Error! Não foi possível encontrar o thumbnail!";
         }
@@ -486,6 +489,8 @@ async function changeDescription(data, bot, args) {
         error = "Erro! Preciso de argumentos!";
     } else if (!data.group_data.sender_is_admin) {
         error = "Erro! Este comando só pode ser usado por admins!";
+    } else if (!data.group_data.bot_is_admin) {
+        error = "Erro! O bot precisa ser admin!";
     } else {
         const description = args.join(" ");
         try {
@@ -528,7 +533,8 @@ async function trancar(data, bot) {
     } else if(data.group_data.locked) {
         error = "Erro! O grupo já está fechado!";
     } else {
-        await bot.conn.groupSettingChange(data.group_data.id, GroupSettingChange.messageSend, true);  // fecha o grupo
+        await bot.conn.groupSettingUpdate(data.group_data.id, 'announcement');
+        // await bot.conn.groupSettingChange(data.group_data.id, GroupSettingChange.messageSend, true);  // fecha o grupo
         return await bot.replyText(data, "Grupo trancado!");
     }
     return await bot.replyText(data, error);
@@ -545,7 +551,7 @@ async function abrir(data, bot) {
     } else if (data.group_data.open) {
         error = "Erro! O grupo já está aberto!";
     } else {
-        await bot.conn.groupSettingChange(data.group_data.id, GroupSettingChange.messageSend, false);  // abre o grupo
+        await bot.conn.groupSettingUpdate(data.group_data.id, 'not_announcement');
         return await bot.replyText(data, "Grupo aberto!");
     }
     return await bot.replyText(data, error);
@@ -571,10 +577,11 @@ async function promover(data, bot, args) {
     if (user_id !== undefined) {
         user_id = user_id.split("@")[1] + "@s.whatsapp.net";  // transforma o id do usuário em um formato válido
         if (!/^(\d{12})@s.whatsapp.net/g.test(user_id)) return await bot.replyText(data, "Erro! Usuário inválido!");
-        if (data.group_data.admins_jid.includes(user_id)) {
+        if (data.group_data.admins.includes(user_id)) {
             error = "Erro! Usuário já é admin!";
         } else {
-            await bot.conn.groupMakeAdmin(data.group_data.id, [user_id]);  // promove o usuário
+            // await bot.conn.groupMakeAdmin(data.group_data.id, [user_id]);  // promove o usuário
+            await bot.conn.groupParticipantsUpdate(data.group_data.id, [user_id], "promote");
             return await bot.replyText(data, "Promovido com sucesso!");
         }
     }
@@ -600,10 +607,12 @@ async function rebaixar(data, bot, args) {
     }
     if (user_id !== undefined) {
         user_id = user_id.split("@")[1] + "@s.whatsapp.net";  // transforma o id do usuário em um formato válido
-        if (!data.group_data.admins_jid.includes(user_id)) {
+        // console.log(user_id);
+        if (!data.group_data.admins.includes(user_id)) {
             error = "Erro! Usuário não é admin!";
         } else {
-            await bot.conn.groupDemoteAdmin(data.group_data.id, [user_id]);  // rebaixa o usuário
+            // await bot.conn.groupDemoteAdmin(data.group_data.id, [user_id]);  // rebaixa o usuário
+            await bot.conn.groupParticipantsUpdate(data.group_data.id, [user_id], "demote");
             return await bot.replyText(data, "Rebaixado com sucesso!");
         }
     }
@@ -632,7 +641,7 @@ async function mentionAll(data, bot, args) {
     } else {
         let message = args.join(" ");
         let members_id = data.group_data.members.map(member => member.jid);  // pega os ids dos membros do grupo
-        return await bot.sendTextMessageWithMention(data, message, members_id);  // envia a mensagem para todos
+        return await bot.sendTextMessage(data, message, members_id);  // envia a mensagem para todos
     }
     return await bot.replyText(data, error);
 }
@@ -745,7 +754,7 @@ async function nsfwaifu(data, bot) {
             fs.writeFileSync(filename, await getDataFromUrl(image.url));
             return await convertGifToMp4(bot, data, filename);
         }
-        return await bot.replyMedia(data, image.url, MessageType.image);
+        return await bot.replyMedia(data, image.url, "image");
     }
 }
 
@@ -785,7 +794,7 @@ async function getHentai(data, bot, args) {
                 fs.writeFileSync(filename, await getDataFromUrl(file));
                 convertGifToMp4(bot, data, filename);
             } else {
-                bot.replyMedia(data, file, MessageType.image);
+                bot.replyMedia(data, file, "image");
             }
         }
         return;
@@ -838,7 +847,7 @@ async function getHentaiImage(data, bot, args) {
                 fs.writeFileSync(filename, await getDataFromUrl(file));
                 convertGifToMp4(bot, data, filename);
             } else {
-                bot.replyMedia(data, file, MessageType.image);
+                bot.replyMedia(data, file, "image");
             }
         }
         return;
@@ -856,9 +865,11 @@ async function transmitir(data, bot, args) {
         error = "Erro! Só pode ser enviado pelo dono do bot!";
     } else {
         const message = "[TRANSMISSÃO]\n\n" + args.join(" ");
-        for (let chat of data.bot_data.all_chats) {
+        const groups = Object.entries(await bot.conn.groupFetchAllParticipating()).slice(0).map(entry => entry[1])
+        for (let chat of groups) {
+            console.log(chat.id)
             // envia a mensagem para todos os chats
-            bot.sendTextMessage(data, message, chat.jid);
+            // bot.sendTextMessage(data, message, chat.id);
         }
         return await bot.replyText(data, "Transmissão enviada com sucesso!");
     }

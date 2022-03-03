@@ -1,7 +1,6 @@
-import {MessageType, Mimetype} from '@adiwajshing/baileys';
 import { getDataFromUrl, postDataToUrl } from './functions.js';
-import pkg from "fluent-ffmpeg";
-const ffmpeg = pkg;
+import pkgff from "fluent-ffmpeg";
+const ffmpeg = pkgff;
 import fs from "fs";
 import { exec } from "child_process";
 
@@ -84,7 +83,7 @@ async function createStickerFromMedia(bot, data, media, packname, author) {
                 fs.unlinkSync(random_filename);
                 return {error: error};
             }
-            await bot.replyMedia(data, random_filename, MessageType.sticker);  // send sticker
+            await bot.replyMedia(data, random_filename, "sticker");  // send sticker
             fs.unlinkSync("./" + media);
             fs.unlinkSync(random_filename);
             bot.logger.write("Enviado com sucesso!", 3);
@@ -109,7 +108,7 @@ async function convertGifToMp4(bot, data, media) {
     }
     ).on("end", async () => {
         bot.logger.write("Finalizando arquivo...", 3);
-        await bot.replyMedia(data, random_filename, MessageType.video, Mimetype.gif);  // send video
+        await bot.replyMedia(data, random_filename, "video", "image/gif");  // send video
         try{
             fs.unlinkSync("./" + media);
             fs.unlinkSync(random_filename);
@@ -118,7 +117,6 @@ async function convertGifToMp4(bot, data, media) {
             bot.logger.write("Erro ao deletar> " + e, 2);
         }
     });
-
 }
 
 

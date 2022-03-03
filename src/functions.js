@@ -1,3 +1,5 @@
+import pkg from "@adiwajshing/baileys"
+const { downloadContentFromMessage } = pkg;
 import axios from "axios";
 import fs from "fs";
 import { exec } from "child_process";
@@ -60,14 +62,13 @@ async function checkGroupData(group_metadata, bot_number, sender) {
         members: undefined,
         owner: undefined,
         sender_is_group_owner: undefined,
-        admins_info: undefined,
-        admins_jid: undefined,
-        bot_is_admin: undefined,
+        bot_is_admin: false,
         sender_is_admin: undefined,
+        admins: [],
         description: undefined,
         locked: false,
         open: true,
-        welcome_on: undefined,
+        welcome_on: false,
     }
 
     group_data.name = group_metadata.subject
@@ -76,22 +77,23 @@ async function checkGroupData(group_metadata, bot_number, sender) {
     group_data.owner = group_metadata.owner;
     group_data.locked = group_metadata.announce !== undefined ? JSON.parse(JSON.stringify(group_metadata.announce).replace(/"/g, '')) : false;  // check if group is locked or not (if it has an announcement)
     group_data.open = !group_data.locked;  // check if group is open or not (if it has an announcement)
-    const admins = group_metadata.participants.map(member => {
-        // get admins info
-        if (member.isAdmin) {
-            return member;
+    // group_data.bot_is_admin = group_data.admins_jid.includes(bot_number);
+    // group_data.sender_is_admin = group_data.admins_jid.includes(sender);
+    for(let i = 0; i < group_data.members.length; i++){
+        if(group_data.members[i].id == bot_number){
+            if(group_data.members[i].admin == "admin" || group_data.members[i].admin == "superadmin"){
+                group_data.bot_is_admin = true;
+            }
         }
-    });
-    group_data.admins_info = admins.filter(element => {
-        // remove undefined values
-        return element !== undefined;
-    });
-    group_data.admins_jid = group_data.admins_info.map(member_id => {
-        // get admins jid
-        return member_id.jid;
-    })
-    group_data.bot_is_admin = group_data.admins_jid.includes(bot_number);
-    group_data.sender_is_admin = group_data.admins_jid.includes(sender);
+        if(group_data.members[i].id == sender){
+            if(group_data.members[i].admin == "admin" || group_data.members[i].admin == "superadmin"){
+                group_data.sender_is_admin = true;
+            }
+        }
+        if(group_data.members[i].admin == "admin" || group_data.members[i].admin == "superadmin"){
+            group_data.admins.push(group_data.members[i].id);
+        }
+    }
     group_data.sender_is_group_owner = group_data.owner == sender;
     group_data.description = group_metadata.desc;
     return group_data;
@@ -109,7 +111,6 @@ async function checkMessageData(message) {
         type: undefined,
         body: undefined,
         is_media: false,
-        quoted: false,
         is_quoted_text: false,
         is_quoted_video: false,
         is_quoted_image: false,
@@ -139,7 +140,6 @@ async function checkMessageData(message) {
     // check if message is a quoted message
     if (type === "extendedTextMessage") {
         const message_string = JSON.stringify(message.message);
-        message_data.quoted = true;
         message_data.is_quoted_text = message_string.includes("conversation");
         message_data.is_quoted_audio = message_string.includes("audioMessage");
         message_data.is_quoted_image = message_string.includes("imageMessage");
@@ -253,4 +253,48 @@ function quotationMarkParser(text) {
     return quote_words;
 }
 
-export { checkGroupData, getDataFromUrl, checkMessageData, checkUpdates, updateBot, postDataToUrl, checkNumberInMessage, quotationMarkParser };
+
+function checkType(media, type, mime) {
+    if (type == "image") {
+        return {
+            image: media,
+            mimetype: mime
+        }
+    } else if (type == "video") {
+        return {
+            video: media,
+            mimetype: mime
+        }
+    } else if (type == "audio") {
+        return {
+            audio: media,
+            mimetype: mime
+        }
+    }
+}
+
+
+async function getMediaFromMessage(message, media) {
+    let content = undefined;
+    if (message.type == "imageMessage" || message.is_quoted_image) {
+        content = await downloadContentFromMessage(media.message.imageMessage, "image");
+    } else if (message.type == "videoMessage" || message.is_quoted_video) {
+        content = await downloadContentFromMessage(media.message.videoMessage, "video");
+    } else if (message.type == "audioMessage" || message.is_quoted_audio) {
+        content = await downloadContentFromMessage(media.message.audioMessage, "audio");
+    }
+    let buffer = Buffer.from([]);
+    for await(const chunk of content) {
+        buffer = Buffer.concat([buffer, chunk]);
+    }
+    return buffer;
+}
+
+
+async function downloadAndSaveMediaMessage(message, media, path) {
+    const content = await getMediaFromMessage(message, media);
+    fs.writeFileSync(path, content);
+    return path;
+}
+
+export { checkGroupData, getDataFromUrl, checkMessageData, checkUpdates, updateBot, postDataToUrl, checkNumberInMessage, quotationMarkParser, checkType, getMediaFromMessage, downloadAndSaveMediaMessage };

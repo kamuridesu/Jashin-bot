@@ -10,3 +10,4 @@ trava
 *.pickle
 __pycache__
 backup
+state

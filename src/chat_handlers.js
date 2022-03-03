@@ -12,7 +12,7 @@ async function messageHandler(bot, message, data) {
     const logger = new Log("./logger/messages.log");
     const excluded_numbers = ["12367045578@s.whatsapp.net"];
     if(message != "" && !excluded_numbers.includes(data.message_data.from)) {
-        logger.write(`Message: ${message}` + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""));
+        logger.write(`Message: ${message.body}` + " from " + data.bot_data.sender + (data.bot_data.is_group ? " on group " + data.group_data.name : ""));
     }
     if(await getBomDiaMessage(bot, data, message)) {
         return;
