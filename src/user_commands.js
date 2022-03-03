@@ -432,12 +432,8 @@ async function perc(data, bot, args) {
 }
 
 async function sorteio(data, bot, args) {
-    for (let arg of args) {
-        for (let item of args) {
-            if (item == arg) {
-                return await bot.replyText(data, "Você não pode sortear o mesmo item! Depois dou um jeito nisso");
-            }
-        }
+    if (new Set(args).size != args.length) {
+        return await bot.replyText(data, "Você não pode escolher o mesmo item mais de uma vez!");
     }
     const items = quotationMarkParser(args.join(" "));
     if (!data.bot_data.is_group) {
@@ -447,36 +443,21 @@ async function sorteio(data, bot, args) {
     } else if (items.length > (data.group_data.members.length - 1)) {
         error = "Você não pode sortear mais pessoas do que tem no grupo!";
     } else {
-        let winners = {};
-        let winners_id = []
-        let sorted_ids = []
+        let winners = {}
         for (let i = 0; i < items.length; i++) {
-            while (true) {
-                console.log(winners);
-                const sorted_id = Math.floor(Math.random() * items.length)
-                let prize_id = undefined;
-                if (!sorted_ids.includes(sorted_id)) {
-                    sorted_ids.push(sorted_id);
-                    prize_id = items[sorted_id];
-                } else {
+            while(true) {
+                const sorted_member = (data.group_data.members[Math.floor(Math.random() * data.group_data.members.length)]).id;
+                if (sorted_member == data.bot_data.bot_number) {
                     continue;
                 }
-                const winner = data.group_data.members[Math.floor(Math.random() * data.group_data.members.length)];
-                if (winner.jid === bot.bot_number || winners_id.includes(winner.jid)) {
-                    continue;
-                }
-                if (winners[winner.jid] === undefined) {
-                    winners_id.push(winner.jid);
-                    winners[winner.jid] = prize_id;
+                if (!winners[sorted_member]) {
+                    winners[sorted_member] = items[i];
                     break;
                 }
             }
         }
-        let message = "";
-        for (let prize_id in winners) {
-            message += `${prize_id} - @${winners[prize_id].jid.split('@')[0]}\n`;
-        }
-        return await bot.sendTextMessageWithMention(data, message, winners_id);
+        let winners_message = "Resultado: \n\n" + Object.keys(winners).map(key => `${winners[key]} - @${key.split("@")[0]}`).join("\n");
+        return await bot.replyText(data, winners_message);
     }
     return await bot.replyText(data, error);
 }
