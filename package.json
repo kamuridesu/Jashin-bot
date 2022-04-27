@@ -29,7 +29,7 @@
     "paheal": "^1.0.3",
     "qrcode-terminal": "^0.12.0",
     "rollup": "^2.68.0",
-    "sequelize": "^6.12.0-beta.3",
+    "sequelize": "^6.17.0",
     "sqlite3": "https://github.com/mapbox/node-sqlite3/tarball/master"
   },
   "type": "module",
