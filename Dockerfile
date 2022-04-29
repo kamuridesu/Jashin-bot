@@ -1,4 +1,4 @@
-FROM debian:11.2
+FROM debian:bullseye
 WORKDIR /home
 RUN apt update && apt install curl git ffmpeg nodejs npm webp -y || apt install curl git ffmpeg nodejs npm libwebp -y || apt install curl git ffmpeg nodejs libwebp -y -y 
 COPY ./setup_docker.sh ./install.sh
