@@ -1,4 +1,4 @@
-FROM debian:11.2
+FROM debian:bullseye
 RUN apt update
 RUN apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev wget curl python3 python3-pip -y
 RUN wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz
