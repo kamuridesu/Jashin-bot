@@ -29,7 +29,7 @@
     "paheal": "^1.0.3",
     "qrcode-terminal": "^0.12.0",
     "rollup": "^2.69.0",
-    "sequelize": "^6.12.0-beta.3",
+    "sequelize": "^6.19.1",
     "sqlite3": "5.0.3"
   },
   "type": "module",
