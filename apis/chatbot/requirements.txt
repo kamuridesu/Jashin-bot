@@ -1,3 +1,4 @@
 chatterbot-corpus==1.2.0
 chatterbot
 spacy==2.1.9
+pyyaml>=5.4 # not directly required, pinned by Snyk to avoid a vulnerability
